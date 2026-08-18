@@ -1,21 +1,17 @@
--- ==============================================================================
--- rürü whimsical — Supabase PostgreSQL Veritabanı Şeması & Güvenlik Politikaları
--- ==============================================================================
-
--- 1. UUID Uzantısı
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- ------------------------------------------------------------------------------
--- 2. TABLO: pieces (Kıyafetler, Özel Dikimler & Portfolyo Parçaları)
--- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.pieces (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
     slug TEXT UNIQUE NOT NULL,
-    category TEXT NOT NULL, -- 'keten', 'yun', 'ipek', 'ozel-dikim', 'aksesuar'
+    category TEXT NOT NULL,
     story TEXT,
     main_image_url TEXT NOT NULL,
     gallery_urls TEXT[] DEFAULT '{}',
+    craft_details JSONB DEFAULT '[]'::jsonb,
+    size_info TEXT,
+    measurements TEXT,
+    showcase_section TEXT DEFAULT 'shopier',
     is_shopier_product BOOLEAN DEFAULT true,
     shopier_sku TEXT,
     shopier_url TEXT,
@@ -26,25 +22,20 @@ CREATE TABLE IF NOT EXISTS public.pieces (
     updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- ------------------------------------------------------------------------------
--- 3. TABLO: journal_notes (Atölye Günlüğü & Dikiş Felsefesi)
--- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.journal_notes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
-    quote TEXT NOT NULL,
-    content TEXT NOT NULL,
+    quote TEXT,
+    content TEXT,
     photo_urls TEXT[] DEFAULT '{}',
+    is_published BOOLEAN DEFAULT true,
     published_at TIMESTAMPTZ DEFAULT now(),
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- ------------------------------------------------------------------------------
--- 4. TABLO: social_embeds (Instagram & TikTok Vitrini)
--- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.social_embeds (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    platform TEXT NOT NULL, -- 'instagram-reels', 'instagram-post', 'tiktok'
+    platform TEXT NOT NULL,
     url TEXT NOT NULL,
     caption TEXT NOT NULL,
     thumbnail_url TEXT,
@@ -52,53 +43,35 @@ CREATE TABLE IF NOT EXISTS public.social_embeds (
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- ------------------------------------------------------------------------------
--- 5. GÜVENLİK (Row Level Security - RLS)
--- ------------------------------------------------------------------------------
--- RLS Aktif Etme
 ALTER TABLE public.pieces ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.journal_notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.social_embeds ENABLE ROW LEVEL SECURITY;
 
--- Okuma İzni (Public Read): Ziyaretçiler tüm aktif içerikleri okuyabilir
-CREATE POLICY "Public Read Pieces" ON public.pieces
-    FOR SELECT USING (true);
+CREATE POLICY "Public Read Pieces" ON public.pieces FOR SELECT USING (true);
+CREATE POLICY "Public Read Journal" ON public.journal_notes FOR SELECT USING (true);
+CREATE POLICY "Public Read Social" ON public.social_embeds FOR SELECT USING (true);
 
-CREATE POLICY "Public Read Journal" ON public.journal_notes
-    FOR SELECT USING (true);
+CREATE POLICY "Allow All Pieces" ON public.pieces FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Journal" ON public.journal_notes FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow All Social" ON public.social_embeds FOR ALL USING (true) WITH CHECK (true);
 
-CREATE POLICY "Public Read Social" ON public.social_embeds
-    FOR SELECT USING (true);
-
--- Yazma/Düzenleme/Silme İzni (Authenticated Admin): Sadece giriş yapmış admin yönetebilir
-CREATE POLICY "Admin Write Pieces" ON public.pieces
-    FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Admin Write Journal" ON public.journal_notes
-    FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Admin Write Social" ON public.social_embeds
-    FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
--- ------------------------------------------------------------------------------
--- 6. MEDYA DEPOSU (Supabase Storage Buckets)
--- ------------------------------------------------------------------------------
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('portfolio', 'portfolio', true),
        ('journal', 'journal', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Storage Public Okuma İzni
-CREATE POLICY "Public Read Portfolio Images" ON storage.objects
+CREATE POLICY "Public Read Storage" ON storage.objects
     FOR SELECT USING (bucket_id IN ('portfolio', 'journal'));
 
--- Storage Admin Yükleme İzni
-CREATE POLICY "Admin Upload Portfolio Images" ON storage.objects
-    FOR INSERT TO authenticated WITH CHECK (bucket_id IN ('portfolio', 'journal'));
+CREATE POLICY "Public Upload Storage" ON storage.objects
+    FOR INSERT WITH CHECK (bucket_id IN ('portfolio', 'journal'));
 
--- ------------------------------------------------------------------------------
--- 7. BAŞLANGIÇ TEST VERİLERİ (Seed Data)
--- ------------------------------------------------------------------------------
+CREATE POLICY "Public Update Storage" ON storage.objects
+    FOR UPDATE WITH CHECK (bucket_id IN ('portfolio', 'journal'));
+
+CREATE POLICY "Public Delete Storage" ON storage.objects
+    FOR DELETE USING (bucket_id IN ('portfolio', 'journal'));
+
 INSERT INTO public.pieces (title, slug, category, story, main_image_url, is_shopier_product, price, shopier_url, order_index)
 VALUES 
 (

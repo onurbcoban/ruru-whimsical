@@ -1,13 +1,19 @@
+import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { getUnifiedShowcase } from '@/lib/portfolio';
+import { getSocialEmbeds } from '@/lib/supabase/queries';
 import { ShopierShowcase } from '@/components/showcase/ShopierShowcase';
 import { ArchiveShowcase } from '@/components/showcase/ArchiveShowcase';
 import { CustomShowcase } from '@/components/showcase/CustomShowcase';
 import { JournalSection } from '@/components/journal/JournalSection';
 import { CreativeWorksShowcase } from '@/components/showcase/CreativeWorksShowcase';
+import { SocialShowcase } from '@/components/showcase/SocialShowcase';
 
 export default async function HomePage() {
-  const { pieces, latestJournal } = await getUnifiedShowcase();
+  const [{ pieces, latestJournal }, socialEmbeds] = await Promise.all([
+    getUnifiedShowcase(),
+    getSocialEmbeds(),
+  ]);
 
   return (
     <main className="container-custom" style={{ padding: '24px 24px 100px' }}>
@@ -120,6 +126,18 @@ export default async function HomePage() {
           >
             serbest işler
           </a>
+          <a
+            href="#sosyal"
+            style={{
+              fontSize: '13.5px',
+              fontWeight: 500,
+              color: 'var(--text-soft)',
+              textDecoration: 'none',
+              transition: 'color 0.2s ease',
+            }}
+          >
+            canlı anlar
+          </a>
         </nav>
 
         {/* Actions */}
@@ -214,6 +232,9 @@ export default async function HomePage() {
       {/* 5. BÖLÜM: Serbest Çalışmalar & Zanaat (Dikiş Dışı Sanat) */}
       <CreativeWorksShowcase pieces={pieces} />
 
+      {/* 6. BÖLÜM: Instagram & TikTok Sosyal Akış Vitrini */}
+      <SocialShowcase embeds={socialEmbeds} />
+
       {/* Footer */}
       <footer
         style={{
@@ -228,10 +249,10 @@ export default async function HomePage() {
         }}
       >
         <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-          &copy; {new Date().getFullYear()} rürü whimsical &bull; Tüm hakları saklıdır.
+          © {new Date().getFullYear()} rürü whimsical • Tüm hakları saklıdır.
         </span>
         <span className="font-hand" style={{ fontSize: '18px', color: 'var(--accent-sage)' }}>
-          dikilen her dikişte küçük bir neşe saklı
+          neşe dokulu üretimler
         </span>
       </footer>
     </main>

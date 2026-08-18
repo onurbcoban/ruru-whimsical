@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import type { UnifiedPiece } from '@/lib/portfolio';
 
 interface ArchiveShowcaseProps {
@@ -10,7 +11,11 @@ interface ArchiveShowcaseProps {
 
 export function ArchiveShowcase({ pieces }: ArchiveShowcaseProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const archivePieces = pieces.filter((p) => p.is_archived || p.category === 'arsiv');
+  const archivePieces = pieces.filter(
+    (p) =>
+      p.showcase_section === 'archive' ||
+      (!p.showcase_section && (p.is_archived || p.category === 'arsiv' || p.category === 'Arşiv'))
+  );
 
   if (archivePieces.length === 0) {
     return null;
@@ -20,7 +25,7 @@ export function ArchiveShowcase({ pieces }: ArchiveShowcaseProps) {
     <div
       id="arsiv"
       style={{
-        marginBottom: '80px',
+        marginBottom: '90px',
         scrollMarginTop: '100px',
         borderTop: '1.5px dashed var(--border-stitch)',
         borderBottom: isOpen ? '1.5px dashed var(--border-stitch)' : 'none',
@@ -46,7 +51,7 @@ export function ArchiveShowcase({ pieces }: ArchiveShowcaseProps) {
         </span>
 
         <span style={{ fontSize: '13.5px', color: 'var(--text-muted)' }}>
-          &bull; sahiplerine ulaşan parçalar
+          • sahiplerine ulaşan parçalar
         </span>
 
         {/* Cümlenin En Sağında Duran Keten Etiket Rozeti */}
@@ -109,7 +114,10 @@ export function ArchiveShowcase({ pieces }: ArchiveShowcaseProps) {
                 opacity: 0.92,
               }}
             >
-              <div style={{ height: '300px', background: 'var(--bg-card-alt)', position: 'relative' }}>
+              <Link
+                href={`/parca/${piece.slug}`}
+                style={{ display: 'block', height: '300px', background: 'var(--bg-card-alt)', position: 'relative' }}
+              >
                 <Image
                   src={piece.main_image_url}
                   alt={piece.title}
@@ -133,14 +141,16 @@ export function ArchiveShowcase({ pieces }: ArchiveShowcaseProps) {
                 >
                   Arşiv / Tükendi
                 </span>
-              </div>
+              </Link>
 
               <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
                 <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '4px' }}>
                   {piece.category}
                 </span>
                 <h4 className="font-editorial" style={{ fontSize: '22px', fontWeight: 400, marginBottom: '8px' }}>
-                  {piece.title}
+                  <Link href={`/parca/${piece.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    {piece.title}
+                  </Link>
                 </h4>
                 <p style={{ fontSize: '13px', color: 'var(--text-soft)', lineHeight: 1.6, marginBottom: '16px', flex: 1 }}>
                   {piece.story}
@@ -150,9 +160,12 @@ export function ArchiveShowcase({ pieces }: ArchiveShowcaseProps) {
                   <span className="font-editorial" style={{ fontSize: '14.5px', fontStyle: 'italic', color: 'var(--text-muted)' }}>
                     Sahibine Ulaştı
                   </span>
-                  <span className="font-hand" style={{ fontSize: '16px', color: 'var(--accent-sage)' }}>
-                    hatıra arşivi
-                  </span>
+                  <Link
+                    href={`/parca/${piece.slug}`}
+                    style={{ fontSize: '12.5px', color: 'var(--accent-sage)', textDecoration: 'none', fontWeight: 600 }}
+                  >
+                    Hikaye &rarr;
+                  </Link>
                 </div>
               </div>
             </article>

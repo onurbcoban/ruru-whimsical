@@ -1,0 +1,17 @@
+{
+  "name": "rürü whimsical • dikiş atölyesi",
+  "short_name": "rürü whimsical",
+  "description": "Masalsı kalıplar, el emeği keten elbiseler ve atölye günlüğü.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBF9F5",
+  "theme_color": "#C46243",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

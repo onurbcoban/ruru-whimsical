@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import type { UnifiedPiece } from '@/lib/portfolio';
 
 interface ShopierShowcaseProps {
@@ -7,7 +8,9 @@ interface ShopierShowcaseProps {
 
 export function ShopierShowcase({ pieces }: ShopierShowcaseProps) {
   const shopierPieces = pieces.filter(
-    (p) => p.is_shopier_product && !p.is_archived && p.category !== 'serbest-calisma' && p.category !== 'arsiv'
+    (p) =>
+      p.showcase_section === 'shopier' ||
+      (!p.showcase_section && p.is_shopier_product && !p.is_archived && p.category !== 'serbest-calisma' && p.category !== 'arsiv')
   );
 
   if (shopierPieces.length === 0) {
@@ -15,10 +18,10 @@ export function ShopierShowcase({ pieces }: ShopierShowcaseProps) {
   }
 
   return (
-    <section id="aski" style={{ marginBottom: '90px', scrollMarginTop: '100px' }}>
+    <section id="aski" style={{ marginBottom: '100px', scrollMarginTop: '100px' }}>
       {/* Sola Bitişik Başlık ve Parça Sayısı Rozeti */}
-      <div style={{ marginBottom: '32px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+      <div style={{ marginBottom: '36px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
           <span className="font-hand" style={{ fontSize: '22px', color: 'var(--accent-terracotta)' }}>
             dikilip askıya asılanlar
           </span>
@@ -41,7 +44,8 @@ export function ShopierShowcase({ pieces }: ShopierShowcaseProps) {
         </h3>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '32px' }}>
+      {/* Editorial Lookbook Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '36px' }}>
         {shopierPieces.map((piece) => (
           <article
             key={piece.id}
@@ -53,9 +57,13 @@ export function ShopierShowcase({ pieces }: ShopierShowcaseProps) {
               display: 'flex',
               flexDirection: 'column',
               boxShadow: 'var(--shadow-sm)',
+              transition: 'transform 0.25s ease, box-shadow 0.25s ease',
             }}
           >
-            <div style={{ height: '360px', background: 'var(--bg-card-alt)', position: 'relative' }}>
+            <Link
+              href={`/parca/${piece.slug}`}
+              style={{ textDecoration: 'none', color: 'inherit', display: 'block', height: '380px', background: 'var(--bg-card-alt)', position: 'relative' }}
+            >
               <Image
                 src={piece.main_image_url}
                 alt={piece.title}
@@ -76,27 +84,46 @@ export function ShopierShowcase({ pieces }: ShopierShowcaseProps) {
                   fontSize: '11px',
                   fontWeight: 600,
                   color: 'var(--accent-terracotta)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                 }}
               >
                 Shopier Satışında
               </span>
-            </div>
+            </Link>
 
             <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-              <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--accent-sage)', fontWeight: 600, marginBottom: '6px' }}>
-                {piece.category}
-              </span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--accent-sage)', fontWeight: 600 }}>
+                  {piece.category}
+                </span>
+                <span className="font-editorial" style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-main)' }}>
+                  {piece.price ? `${piece.price} ₺` : ''}
+                </span>
+              </div>
+
               <h4 className="font-editorial" style={{ fontSize: '24px', fontWeight: 400, marginBottom: '10px' }}>
-                {piece.title}
+                <Link href={`/parca/${piece.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  {piece.title}
+                </Link>
               </h4>
+
               <p style={{ fontSize: '13.5px', color: 'var(--text-soft)', lineHeight: 1.65, marginBottom: '20px', flex: 1 }}>
                 {piece.story}
               </p>
 
-              <div style={{ paddingTop: '16px', borderTop: '1px dashed var(--border-warm)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="font-editorial" style={{ fontSize: '22px', fontWeight: 600 }}>
-                  {piece.price ? `${piece.price} ₺` : 'Fiyat Belirtilmedi'}
-                </span>
+              <div style={{ paddingTop: '16px', borderTop: '1px dashed var(--border-warm)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                <Link
+                  href={`/parca/${piece.slug}`}
+                  style={{
+                    fontSize: '12.5px',
+                    fontWeight: 600,
+                    color: 'var(--text-soft)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  Hikayesi & Detaylar &rarr;
+                </Link>
+
                 {piece.shopier_url && (
                   <a
                     href={piece.shopier_url}
@@ -107,13 +134,13 @@ export function ShopierShowcase({ pieces }: ShopierShowcaseProps) {
                       color: '#FFFFFF',
                       padding: '8px 18px',
                       borderRadius: '30px',
-                      fontSize: '12.5px',
+                      fontSize: '12px',
                       fontWeight: 600,
                       textDecoration: 'none',
                       boxShadow: '0 4px 12px rgba(196, 98, 67, 0.25)',
                     }}
                   >
-                    Shopier&apos;den Al ↗
+                    Satın Al ↗
                   </a>
                 )}
               </div>

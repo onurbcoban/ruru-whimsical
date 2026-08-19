@@ -75,22 +75,6 @@ export function CustomShowcase({ pieces }: CustomShowcaseProps) {
                     sizes="(max-width: 768px) 100vw, 50vw"
                     style={{ objectFit: 'cover' }}
                   />
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: '16px',
-                      left: '16px',
-                      background: 'var(--bg-canvas)',
-                      border: '1px solid var(--border-warm)',
-                      borderRadius: '30px',
-                      padding: '4px 14px',
-                      fontSize: '11px',
-                      fontWeight: 600,
-                      color: 'var(--accent-sage)',
-                    }}
-                  >
-                    Özel Dikim
-                  </span>
                 </Link>
               </div>
 

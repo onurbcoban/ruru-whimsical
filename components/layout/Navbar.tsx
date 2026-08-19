@@ -24,15 +24,15 @@ export function Navbar() {
         marginBottom: '40px',
       }}
     >
-      <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Link href="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', gap: '0px', paddingTop: '2px' }}>
         <span
           className="font-editorial"
           style={{
-            fontSize: '26px',
+            fontSize: '27px',
             fontStyle: 'italic',
             fontWeight: 600,
             letterSpacing: '-0.3px',
-            lineHeight: 1,
+            lineHeight: 1.1,
             display: 'block',
           }}
         >
@@ -41,13 +41,14 @@ export function Navbar() {
         <span
           className="font-hand"
           style={{
-            fontSize: '14px',
+            fontSize: '17.5px',
             color: 'var(--accent-sage)',
             display: 'block',
-            marginTop: '3px',
+            lineHeight: 1,
+            marginTop: '-1px',
           }}
         >
-          dikiş atölyesi
+          üretim yolculuğu
         </span>
       </Link>
 
@@ -69,12 +70,12 @@ export function Navbar() {
           style={{
             fontSize: '14px',
             fontWeight: 500,
-            color: 'var(--text-muted)',
+            color: 'var(--text-soft)',
             textDecoration: 'none',
             transition: 'color 0.2s ease',
           }}
         >
-          arşiv
+          dikilip gidenler
         </a>
         <a
           href={getHref('#atolye')}
@@ -88,18 +89,6 @@ export function Navbar() {
         >
           atölye seçkisi
         </a>
-        <Link
-          href="/gunluk"
-          style={{
-            fontSize: '14px',
-            fontWeight: 500,
-            color: pathname === '/gunluk' ? 'var(--accent-terracotta)' : 'var(--text-soft)',
-            textDecoration: 'none',
-            transition: 'color 0.2s ease',
-          }}
-        >
-          günlük
-        </Link>
         <a
           href={getHref('#serbest')}
           style={{
@@ -110,7 +99,19 @@ export function Navbar() {
             transition: 'color 0.2s ease',
           }}
         >
-          craftlarım
+          craftlar
+        </a>
+        <a
+          href={getHref('#gunluk')}
+          style={{
+            fontSize: '14px',
+            fontWeight: 500,
+            color: 'var(--text-soft)',
+            textDecoration: 'none',
+            transition: 'color 0.2s ease',
+          }}
+        >
+          günlük
         </a>
         <a
           href={getHref('#sosyal')}
@@ -129,7 +130,7 @@ export function Navbar() {
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
         <ThemeToggle />
         <a
-          href="https://shopier.com"
+          href="https://www.shopier.com/ruruwhimsical"
           target="_blank"
           rel="noopener noreferrer"
           style={{

@@ -61,91 +61,84 @@ export default async function AdminSocialPage() {
             Henüz yayında Instagram paylaşımı yok. Yukarıdaki formdan ekleyebilirsiniz.
           </p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
-            {instagramEmbeds.map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  border: '1px solid var(--border-warm)',
-                  borderRadius: 'var(--radius-sm)',
-                  overflow: 'hidden',
-                  background: 'var(--bg-main)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <div style={{ position: 'relative', width: '100%', height: '180px', background: 'var(--bg-card-alt)' }}>
-                  {item.thumbnail_url && (
-                    <Image
-                      src={item.thumbnail_url}
-                      alt={item.caption || 'Instagram paylaşımı'}
-                      fill
-                      style={{ objectFit: 'cover' }}
-                    />
-                  )}
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: '8px',
-                      left: '8px',
-                      background: 'rgba(0,0,0,0.7)',
-                      color: '#FFF',
-                      fontSize: '10px',
-                      fontWeight: 600,
-                      padding: '2px 8px',
-                      borderRadius: '10px',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {item.platform === 'instagram-reels' ? 'Reels' : 'Post'}
-                  </span>
-                </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
+            {instagramEmbeds.map((item) => {
+              const match = item.url.match(/\/(?:p|reel|reels)\/([A-Za-z0-9_-]+)/);
+              const shortcode = match ? match[1] : null;
 
-                <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '10px' }}>
-                  <p
-                    style={{
-                      fontSize: '12px',
-                      color: 'var(--text-soft)',
-                      margin: 0,
-                      lineHeight: 1.4,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {item.caption}
-                  </p>
+              return (
+                <div
+                  key={item.id}
+                  style={{
+                    border: '1px solid var(--border-warm)',
+                    borderRadius: 'var(--radius-sm)',
+                    overflow: 'hidden',
+                    background: 'var(--bg-main)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <div style={{ position: 'relative', width: '100%', minHeight: '260px', background: 'var(--bg-card-alt)' }}>
+                    {shortcode ? (
+                      <iframe
+                        src={`https://www.instagram.com/p/${shortcode}/embed/`}
+                        width="100%"
+                        height="260"
+                        frameBorder="0"
+                        scrolling="no"
+                        style={{ border: 'none', display: 'block', background: '#FFF' }}
+                      />
+                    ) : null}
+                  </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px dashed var(--border-warm)' }}>
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ fontSize: '11.5px', color: 'var(--accent-terracotta)', textDecoration: 'none', fontWeight: 600 }}
-                    >
-                      Gönderiyi Aç ↗
-                    </a>
-
-                    <form action={deleteSocialEmbedAction.bind(null, item.id)}>
-                      <button
-                        type="submit"
+                  <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '10px' }}>
+                    {item.caption && (
+                      <p
                         style={{
-                          background: 'transparent',
-                          border: 'none',
-                          color: '#E53E3E',
-                          fontSize: '11.5px',
-                          cursor: 'pointer',
-                          padding: '2px 6px',
+                          fontSize: '12px',
+                          color: 'var(--text-soft)',
+                          margin: 0,
+                          lineHeight: 1.4,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
                         }}
                       >
-                        Sil
-                      </button>
-                    </form>
+                        {item.caption}
+                      </p>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px dashed var(--border-warm)' }}>
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ fontSize: '11.5px', color: 'var(--accent-terracotta)', textDecoration: 'none', fontWeight: 600 }}
+                      >
+                        Gönderiyi Aç ↗
+                      </a>
+
+                      <form action={deleteSocialEmbedAction.bind(null, item.id)}>
+                        <button
+                          type="submit"
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#E53E3E',
+                            fontSize: '11.5px',
+                            cursor: 'pointer',
+                            padding: '2px 6px',
+                          }}
+                        >
+                          Sil
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -171,7 +164,7 @@ export default async function AdminSocialPage() {
             Henüz yayında TikTok videosu yok. Yukarıdaki formdan ekleyebilirsiniz.
           </p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
             {tiktokEmbeds.map((item) => (
               <div
                 key={item.id}
@@ -184,12 +177,13 @@ export default async function AdminSocialPage() {
                   flexDirection: 'column',
                 }}
               >
-                <div style={{ position: 'relative', width: '100%', height: '180px', background: 'var(--bg-card-alt)' }}>
+                <div style={{ position: 'relative', width: '100%', height: '240px', background: 'var(--bg-card-alt)' }}>
                   {item.thumbnail_url && (
                     <Image
                       src={item.thumbnail_url}
                       alt={item.caption || 'TikTok videosu'}
                       fill
+                      sizes="(max-width: 768px) 100vw, 20vw"
                       style={{ objectFit: 'cover' }}
                     />
                   )}
@@ -212,20 +206,22 @@ export default async function AdminSocialPage() {
                 </div>
 
                 <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '10px' }}>
-                  <p
-                    style={{
-                      fontSize: '12px',
-                      color: 'var(--text-soft)',
-                      margin: 0,
-                      lineHeight: 1.4,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {item.caption}
-                  </p>
+                  {item.caption && (
+                    <p
+                      style={{
+                        fontSize: '12px',
+                        color: 'var(--text-soft)',
+                        margin: 0,
+                        lineHeight: 1.4,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {item.caption}
+                    </p>
+                  )}
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px dashed var(--border-warm)' }}>
                     <a

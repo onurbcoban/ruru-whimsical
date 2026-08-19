@@ -93,27 +93,6 @@ export function PieceGallery({
             }}
           />
         )}
-
-        {badgeText && !isHovered && (
-          <span
-            style={{
-              position: 'absolute',
-              top: '18px',
-              left: '18px',
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border-warm)',
-              borderRadius: '30px',
-              padding: '5px 14px',
-              fontSize: '12px',
-              fontWeight: 600,
-              color: badgeColor,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              pointerEvents: 'none',
-            }}
-          >
-            {badgeText}
-          </span>
-        )}
       </div>
 
       {isHovered && (

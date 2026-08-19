@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { createServerClient } from '@/lib/supabase/server';
 import { getExpectedAdminToken, verifyAdminSession } from '@/lib/auth';
 import { fetchSocialMetadata } from '@/lib/social-oembed';
+import { setInMemoryHeroSettings } from '@/lib/supabase/queries';
 
 function generateSlug(text: string): string {
   const trMap: { [key: string]: string } = {
@@ -397,3 +398,42 @@ export async function deleteSocialEmbedAction(id: string) {
   revalidatePath('/admin/social');
   revalidatePath('/admin');
 }
+
+export async function updateHeroSettingsAction(formData: FormData) {
+  await requireAdminAuth();
+
+  const title = (formData.get('title') as string) || '';
+  const highlight = (formData.get('highlight') as string) || '';
+  const title_suffix = (formData.get('title_suffix') as string) || '';
+  const description = (formData.get('description') as string) || '';
+  const handwritten_note = (formData.get('handwritten_note') as string) || '';
+
+  const heroData = {
+    title,
+    highlight,
+    title_suffix,
+    description,
+    handwritten_note,
+  };
+
+  // Always update in-memory cache immediately
+  setInMemoryHeroSettings(heroData);
+
+  if (isLiveSupabaseConfigured()) {
+    try {
+      const supabase = await createServerClient();
+      await supabase.from('site_settings').upsert({
+        key: 'hero',
+        value: heroData,
+        updated_at: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error('Database hero update exception:', err);
+    }
+  }
+
+  revalidatePath('/');
+  revalidatePath('/admin');
+  return { success: true };
+}
+

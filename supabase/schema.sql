@@ -43,17 +43,26 @@
             created_at TIMESTAMPTZ DEFAULT now()
         );
 
+        CREATE TABLE IF NOT EXISTS public.site_settings (
+            key TEXT PRIMARY KEY,
+            value JSONB NOT NULL,
+            updated_at TIMESTAMPTZ DEFAULT now()
+        );
+
         ALTER TABLE public.pieces ENABLE ROW LEVEL SECURITY;
         ALTER TABLE public.journal_notes ENABLE ROW LEVEL SECURITY;
         ALTER TABLE public.social_embeds ENABLE ROW LEVEL SECURITY;
+        ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
 
         CREATE POLICY "Public Read Pieces" ON public.pieces FOR SELECT USING (true);
         CREATE POLICY "Public Read Journal" ON public.journal_notes FOR SELECT USING (true);
         CREATE POLICY "Public Read Social" ON public.social_embeds FOR SELECT USING (true);
+        CREATE POLICY "Public Read Settings" ON public.site_settings FOR SELECT USING (true);
 
         CREATE POLICY "Allow All Pieces" ON public.pieces FOR ALL USING (true) WITH CHECK (true);
         CREATE POLICY "Allow All Journal" ON public.journal_notes FOR ALL USING (true) WITH CHECK (true);
         CREATE POLICY "Allow All Social" ON public.social_embeds FOR ALL USING (true) WITH CHECK (true);
+        CREATE POLICY "Allow All Settings" ON public.site_settings FOR ALL USING (true) WITH CHECK (true);
 
         INSERT INTO storage.buckets (id, name, public)
         VALUES ('portfolio', 'portfolio', true),

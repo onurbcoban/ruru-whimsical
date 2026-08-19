@@ -16,15 +16,15 @@ export function JournalSection({ journals = [], journal }: JournalSectionProps) 
 
   return (
     <section id="gunluk" style={{ marginBottom: '120px', scrollMarginTop: '60px' }}>
-      {/* Sola Hizalı Bölüm Başlığı */}
+      {/* Sola Hizalı Bölüm Başlığı (Ilık Bal / Amber Aksanı) */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: '16px', marginBottom: '40px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <span className="font-hand" style={{ fontSize: '24px', color: 'var(--accent-terracotta)' }}>
+            <span className="font-hand" style={{ fontSize: '24px', color: 'var(--accent-honey)' }}>
               dikiş masasından notlar
             </span>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-sage)', letterSpacing: '0.5px' }}>
-              • kumaşın dili & günce
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.5px' }}>
+              • kumaşın hafızası & günce
             </span>
           </div>
           <h3 className="font-editorial" style={{ fontSize: '38px', fontWeight: 400, margin: 0, letterSpacing: '-0.3px' }}>
@@ -37,7 +37,7 @@ export function JournalSection({ journals = [], journal }: JournalSectionProps) 
           style={{
             fontSize: '13.5px',
             fontWeight: 600,
-            color: 'var(--accent-sage)',
+            color: 'var(--accent-honey)',
             textDecoration: 'none',
             display: 'inline-flex',
             alignItems: 'center',
@@ -94,7 +94,7 @@ export function JournalSection({ journals = [], journal }: JournalSectionProps) 
                   fontSize: '11.5px',
                   textTransform: 'uppercase',
                   letterSpacing: '1.5px',
-                  color: 'var(--accent-sage)',
+                  color: 'var(--accent-honey)',
                   fontWeight: 600,
                 }}
               >
@@ -115,9 +115,9 @@ export function JournalSection({ journals = [], journal }: JournalSectionProps) 
                 <blockquote
                   className="font-editorial"
                   style={{
-                    fontSize: '18px',
+                    fontSize: '19px',
                     fontStyle: 'italic',
-                    color: 'var(--accent-terracotta)',
+                    color: 'var(--accent-honey)',
                     lineHeight: 1.5,
                     margin: '4px 0 0',
                   }}
@@ -149,7 +149,7 @@ export function JournalSection({ journals = [], journal }: JournalSectionProps) 
                   style={{
                     fontSize: '13px',
                     fontWeight: 600,
-                    color: 'var(--text-main)',
+                    color: 'var(--accent-honey)',
                     textDecoration: 'none',
                   }}
                 >

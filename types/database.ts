@@ -41,6 +41,14 @@ export interface SocialEmbed {
   created_at: string;
 }
 
+export interface HeroSettings {
+  title: string;
+  highlight: string;
+  title_suffix: string;
+  description: string;
+  handwritten_note: string;
+}
+
 export interface Database {
   public: {
     Tables: {

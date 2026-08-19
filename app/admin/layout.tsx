@@ -16,7 +16,6 @@ export default function AdminLayout({
           position: 'sticky',
           top: 0,
           zIndex: 40,
-          padding: '0 24px',
         }}
       >
         <div
@@ -28,7 +27,7 @@ export default function AdminLayout({
             height: '70px',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <Link
               href="/admin"
               className="font-editorial"
@@ -57,7 +56,7 @@ export default function AdminLayout({
             </span>
           </div>
 
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '22px', flexWrap: 'wrap' }}>
             <Link
               href="/admin"
               style={{

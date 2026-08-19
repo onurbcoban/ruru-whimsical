@@ -366,3 +366,47 @@ export async function getSocialEmbeds(): Promise<SocialEmbed[]> {
     return MOCK_SOCIAL_EMBEDS;
   }
 }
+
+export const DEFAULT_HERO_SETTINGS = {
+  title: 'merhaba, ben rümeysa.',
+  highlight: 'neşenizi ön plana çıkaran',
+  title_suffix: 'giysiler dikiyorum.',
+  description: 'rürü whimsical; çocukluk düşlerinin, dokunmaya kıyılamayan ketenlerin ve atölyemdeki küçük neşelerin bir toplamı.',
+  handwritten_note: 'her dikişte bir hikaye saklı...',
+};
+
+// In-memory fallback cache for dev / offline / missing table environments
+let inMemoryHeroSettings = { ...DEFAULT_HERO_SETTINGS };
+
+export function setInMemoryHeroSettings(data: typeof DEFAULT_HERO_SETTINGS) {
+  inMemoryHeroSettings = {
+    ...DEFAULT_HERO_SETTINGS,
+    ...data,
+  };
+}
+
+export async function getHeroSettings() {
+  try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return inMemoryHeroSettings;
+    }
+
+    const supabase = await createServerClient();
+    const { data, error } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'hero')
+      .single();
+
+    if (error || !data || !data.value) {
+      return inMemoryHeroSettings;
+    }
+
+    return {
+      ...DEFAULT_HERO_SETTINGS,
+      ...data.value,
+    };
+  } catch {
+    return inMemoryHeroSettings;
+  }
+}

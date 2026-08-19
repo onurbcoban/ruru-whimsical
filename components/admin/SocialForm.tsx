@@ -51,7 +51,7 @@ export function SocialForm() {
           + Yeni Sosyal Paylaşım Ekle
         </h3>
         <p style={{ fontSize: '12.5px', color: 'var(--text-soft)', marginTop: '4px' }}>
-          Sadece linki yapıştırın; kapak fotoğrafı ve platform (Instagram/TikTok) otomatik algılanır.
+          Sadece Instagram veya TikTok linkini yapıştırın. Paylaşım sitede canlı ve orijinal haliyle sergilenir.
         </p>
       </div>
 
@@ -72,7 +72,7 @@ export function SocialForm() {
 
       <div>
         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>
-          Instagram veya TikTok Gönderi / Video Linki
+          Instagram veya TikTok Gönderi / Video Linki *
         </label>
         <input
           type="url"
@@ -95,7 +95,7 @@ export function SocialForm() {
 
       <div>
         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>
-          Açıklama / Başlık (Opsiyonel - Boş bırakılırsa otomatik alınır)
+          Açıklama / Not (Opsiyonel)
         </label>
         <input
           type="text"

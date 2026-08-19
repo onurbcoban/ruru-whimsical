@@ -231,8 +231,6 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
             mainImage={piece.main_image_url}
             galleryUrls={piece.gallery_urls}
             title={piece.title}
-            badgeText={badgeText}
-            badgeColor={badgeColor}
           />
         </div>
 
@@ -330,66 +328,55 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
               style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px',
+                gap: '14px',
               }}
             >
-              <h3 className="font-editorial" style={{ fontSize: '19px', fontWeight: 500, margin: '0 0 2px', color: 'var(--text-main)' }}>
+              <h3 className="font-editorial" style={{ fontSize: '20px', fontWeight: 500, margin: '0 0 4px', color: 'var(--text-main)' }}>
                 Atölye & Detay Notları
               </h3>
 
-              {piece.size_info && (
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'baseline',
-                  }}
-                >
-                  <span style={{ fontSize: '13px', color: 'var(--text-soft)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Beden & Kalıp
-                  </span>
-                  <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-main)' }}>
-                    {piece.size_info}
-                  </span>
-                </div>
-              )}
-
-              {piece.measurements && (
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    gap: '16px',
-                  }}
-                >
-                  <span style={{ fontSize: '13px', color: 'var(--text-soft)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
-                    Ölçüler (cm)
-                  </span>
-                  <span style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--text-main)', textAlign: 'right', lineHeight: 1.5 }}>
-                    {piece.measurements}
-                  </span>
-                </div>
-              )}
-
-              {hasCraftDetails &&
-                piece.craft_details!.map((detail, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'baseline',
-                    }}
-                  >
-                    <span style={{ fontSize: '13px', color: 'var(--text-soft)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                      {detail.label}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '140px 1fr',
+                  gap: '10px 24px',
+                  alignItems: 'baseline',
+                }}
+              >
+                {piece.size_info && (
+                  <div style={{ display: 'contents' }}>
+                    <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 500, lineHeight: 1.5 }}>
+                      Beden & Kalıp
                     </span>
-                    <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-main)' }}>
-                      {detail.value}
+                    <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-main)', lineHeight: 1.5 }}>
+                      {piece.size_info}
                     </span>
                   </div>
-                ))}
+                )}
+
+                {piece.measurements && (
+                  <div style={{ display: 'contents' }}>
+                    <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 500, lineHeight: 1.5 }}>
+                      Ölçüler (cm)
+                    </span>
+                    <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-main)', lineHeight: 1.5 }}>
+                      {piece.measurements}
+                    </span>
+                  </div>
+                )}
+
+                {hasCraftDetails &&
+                  piece.craft_details!.map((detail, idx) => (
+                    <div key={idx} style={{ display: 'contents' }}>
+                      <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 500, lineHeight: 1.5 }}>
+                        {detail.label}
+                      </span>
+                      <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-main)', lineHeight: 1.5 }}>
+                        {detail.value}
+                      </span>
+                    </div>
+                  ))}
+              </div>
             </div>
           )}
 

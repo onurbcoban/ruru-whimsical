@@ -126,22 +126,6 @@ export function ArchiveShowcase({ pieces }: ArchiveShowcaseProps) {
                   sizes="(max-width: 768px) 100vw, 25vw"
                   style={{ objectFit: 'cover' }}
                 />
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: '12px',
-                    left: '12px',
-                    background: 'var(--bg-canvas)',
-                    border: '1px solid var(--border-warm)',
-                    borderRadius: '20px',
-                    padding: '3px 10px',
-                    fontSize: '10.5px',
-                    fontWeight: 600,
-                    color: 'var(--text-muted)',
-                  }}
-                >
-                  Tükendi / Arşiv
-                </span>
               </Link>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>

@@ -37,7 +37,7 @@ export function ShopierShowcase({ pieces }: ShopierShowcaseProps) {
           </span>
         </div>
         <h3 className="font-editorial" style={{ fontSize: '38px', fontWeight: 400, margin: 0, letterSpacing: '-0.3px' }}>
-          Hemen Alınabilecek Elbiseler
+          Hemen Ulaşılabilecek Parçalar
         </h3>
       </div>
 
@@ -74,22 +74,6 @@ export function ShopierShowcase({ pieces }: ShopierShowcaseProps) {
                 style={{ objectFit: 'cover' }}
                 priority={piece.order_index === 1}
               />
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '14px',
-                  left: '14px',
-                  background: 'var(--bg-canvas)',
-                  border: '1px solid var(--border-warm)',
-                  borderRadius: '30px',
-                  padding: '4px 12px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  color: 'var(--accent-terracotta)',
-                }}
-              >
-                Shopier Satışında
-              </span>
             </Link>
 
             {/* Bilgiler & Tipografi */}

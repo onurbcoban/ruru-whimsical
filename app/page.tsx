@@ -1,5 +1,5 @@
 import { getUnifiedShowcase } from '@/lib/portfolio';
-import { getSocialEmbeds } from '@/lib/supabase/queries';
+import { getSocialEmbeds, getHeroSettings } from '@/lib/supabase/queries';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ShopierShowcase } from '@/components/showcase/ShopierShowcase';
@@ -10,9 +10,10 @@ import { CreativeWorksShowcase } from '@/components/showcase/CreativeWorksShowca
 import { SocialShowcase } from '@/components/showcase/SocialShowcase';
 
 export default async function HomePage() {
-  const [{ pieces, latestJournal, journals }, socialEmbeds] = await Promise.all([
+  const [{ pieces, latestJournal, journals }, socialEmbeds, hero] = await Promise.all([
     getUnifiedShowcase(),
     getSocialEmbeds(),
+    getHeroSettings(),
   ]);
 
   return (
@@ -41,7 +42,6 @@ export default async function HomePage() {
             paddingLeft: '28px',
           }}
         >
-
           <h2
             className="font-editorial"
             style={{
@@ -52,42 +52,53 @@ export default async function HomePage() {
               letterSpacing: '-0.5px',
             }}
           >
-            merhaba, ben rümeysa.<br />
-            <em style={{ color: 'var(--accent-terracotta)', fontStyle: 'italic' }}>
-              neşenizi ön plana çıkaran
-            </em>{' '}
-            giysiler dikiyorum.
+            {hero.title && (
+              <>
+                {hero.title}
+                <br />
+              </>
+            )}
+            {hero.highlight && (
+              <em style={{ color: 'var(--accent-terracotta)', fontStyle: 'italic' }}>
+                {hero.highlight}
+              </em>
+            )}{' '}
+            {hero.title_suffix}
           </h2>
 
-          <p
-            style={{
-              fontSize: '16.5px',
-              color: 'var(--text-soft)',
-              lineHeight: 1.8,
-              maxWidth: '620px',
-              marginBottom: '20px',
-            }}
-          >
-            rürü whimsical; çocukluk düşlerinin, dokunmaya kıyılamayan ketenlerin ve atölyemdeki küçük neşelerin bir toplamı.
-          </p>
+          {hero.description && (
+            <p
+              style={{
+                fontSize: '16.5px',
+                color: 'var(--text-soft)',
+                lineHeight: 1.8,
+                maxWidth: '620px',
+                marginBottom: '20px',
+              }}
+            >
+              {hero.description}
+            </p>
+          )}
 
-          <div
-            className="font-hand"
-            style={{
-              fontSize: '24px',
-              color: 'var(--accent-terracotta)',
-            }}
-          >
-            sevgilerle, rümeysa
-          </div>
+          {hero.handwritten_note && (
+            <div
+              className="font-hand"
+              style={{
+                fontSize: '24px',
+                color: 'var(--accent-terracotta)',
+              }}
+            >
+              {hero.handwritten_note}
+            </div>
+          )}
         </div>
       </section>
 
       <ShopierShowcase pieces={pieces} />
       <ArchiveShowcase pieces={pieces} />
       <CustomShowcase pieces={pieces} />
-      <JournalSection journals={journals} journal={latestJournal} />
       <CreativeWorksShowcase pieces={pieces} />
+      <JournalSection journals={journals} journal={latestJournal} />
       <SocialShowcase embeds={socialEmbeds} />
 
       <Footer />

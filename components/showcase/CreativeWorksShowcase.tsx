@@ -19,21 +19,21 @@ export function CreativeWorksShowcase({ pieces }: CreativeWorksShowcaseProps) {
 
   return (
     <section id="serbest" style={{ marginBottom: '120px', scrollMarginTop: '60px' }}>
-      {/* Sola Bitişik Başlık */}
+      {/* Sola Bitişik Başlık (İndigo / Zanaat Mavisi Aksanı) */}
       <div style={{ marginBottom: '40px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-          <span className="font-hand" style={{ fontSize: '24px', color: 'var(--accent-terracotta)', display: 'block' }}>
+          <span className="font-hand" style={{ fontSize: '24px', color: 'var(--accent-indigo)', display: 'block' }}>
             serbest çalışmalar & küçük denemeler
           </span>
           <span
             style={{
               fontSize: '12px',
               fontWeight: 600,
-              color: 'var(--accent-terracotta)',
+              color: 'var(--accent-indigo)',
               letterSpacing: '0.5px',
             }}
           >
-            • {creativePieces.length} eser
+            • {creativePieces.length} zanaat eseri
           </span>
         </div>
         <h3 className="font-editorial" style={{ fontSize: '38px', fontWeight: 400, margin: 0, letterSpacing: '-0.3px' }}>
@@ -41,7 +41,7 @@ export function CreativeWorksShowcase({ pieces }: CreativeWorksShowcaseProps) {
         </h3>
       </div>
 
-      {/* Sanat Galerisi Izgarası (Kutusuz, Saf Tuval Akışı) */}
+      {/* Sanat Galerisi Izgarası */}
       <div
         style={{
           display: 'grid',
@@ -79,22 +79,6 @@ export function CreativeWorksShowcase({ pieces }: CreativeWorksShowcaseProps) {
                 sizes="(max-width: 768px) 100vw, 33vw"
                 style={{ objectFit: 'cover' }}
               />
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '14px',
-                  left: '14px',
-                  background: 'var(--bg-canvas)',
-                  border: '1px solid var(--border-warm)',
-                  borderRadius: '30px',
-                  padding: '4px 12px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  color: 'var(--accent-terracotta)',
-                }}
-              >
-                Serbest Zanaat
-              </span>
             </Link>
 
             {/* Bilgiler & Tipografi */}
@@ -104,7 +88,7 @@ export function CreativeWorksShowcase({ pieces }: CreativeWorksShowcaseProps) {
                   fontSize: '11.5px',
                   textTransform: 'uppercase',
                   letterSpacing: '1.5px',
-                  color: 'var(--accent-sage)',
+                  color: 'var(--accent-indigo)',
                   fontWeight: 600,
                 }}
               >
@@ -140,7 +124,7 @@ export function CreativeWorksShowcase({ pieces }: CreativeWorksShowcaseProps) {
                   style={{
                     fontSize: '13px',
                     fontWeight: 600,
-                    color: 'var(--accent-terracotta)',
+                    color: 'var(--accent-indigo)',
                     textDecoration: 'none',
                   }}
                 >

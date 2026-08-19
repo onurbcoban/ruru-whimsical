@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getPublishedPieces, getLatestJournalNote, getSocialEmbeds } from '@/lib/supabase/queries';
+import { getPublishedPieces, getLatestJournalNote, getSocialEmbeds, getHeroSettings } from '@/lib/supabase/queries';
+import { HeroSettingsForm } from '@/components/admin/HeroSettingsForm';
 
 export default async function AdminDashboardPage() {
-  const [pieces, latestJournal, socialEmbeds] = await Promise.all([
+  const [pieces, latestJournal, socialEmbeds, hero] = await Promise.all([
     getPublishedPieces(),
     getLatestJournalNote(),
     getSocialEmbeds(),
+    getHeroSettings(),
   ]);
 
   const shopierPieces = pieces.filter((p) => p.is_shopier_product && !p.is_archived);
@@ -24,8 +26,35 @@ export default async function AdminDashboardPage() {
           Atölye Yönetim Masası
         </h1>
         <p style={{ fontSize: '14px', color: 'var(--text-soft)', marginTop: '6px' }}>
-          Satıştaki elbiseleri, atölye portfolyosunu, hikayeleri ve günlüğü buradan yönetebilirsiniz.
+          Satıştaki elbiseleri, atölye portfolyosunu, hikayeleri, günlüğü ve karşılama metnini buradan yönetebilirsiniz.
         </p>
+      </div>
+
+      {/* 1. ANA SAYFA KARŞILAMA (HERO) METNİ DÜZENLEME KARTI */}
+      <div
+        style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-warm)',
+          borderRadius: 'var(--radius-card)',
+          padding: '28px',
+          boxShadow: 'var(--shadow-card)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '20px', flexWrap: 'wrap', gap: '8px' }}>
+          <div>
+            <h3 className="font-editorial" style={{ fontSize: '22px', fontWeight: 500, margin: 0 }}>
+              Ana Sayfa Karşılama Metni
+            </h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-soft)', margin: '4px 0 0' }}>
+              Ziyaretçilerin siteye girdiğinde ilk gördüğü karşılama başlığını, hikaye paragrafını ve el yazısı notu düzenleyin.
+            </p>
+          </div>
+          <span style={{ fontSize: '11.5px', color: 'var(--accent-terracotta)', fontWeight: 600 }}>
+            • Ana Sayfa Tepesi
+          </span>
+        </div>
+
+        <HeroSettingsForm initialHero={hero} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>

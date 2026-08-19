@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { getSocialEmbeds } from '@/lib/supabase/queries';
 import { deleteSocialEmbedAction } from '@/app/admin/actions';
 import { SocialForm } from '@/components/admin/SocialForm';
@@ -14,6 +15,21 @@ export default async function AdminSocialPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '36px', maxWidth: '900px' }}>
       <div>
+        <Link
+          href="/admin"
+          style={{
+            fontSize: '13px',
+            color: 'var(--text-soft)',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            marginBottom: '12px',
+            fontWeight: 500,
+          }}
+        >
+          &larr; Ana Yönetim Masası
+        </Link>
         <h1 className="font-editorial" style={{ fontSize: '32px', fontWeight: 400, margin: 0 }}>
           Instagram & TikTok Vitrin Yönetimi
         </h1>

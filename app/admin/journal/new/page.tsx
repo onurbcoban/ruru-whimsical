@@ -5,7 +5,11 @@ export default function NewJournalPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          <Link href="/admin" style={{ fontSize: '13px', color: 'var(--text-soft)', textDecoration: 'none' }}>
+            &larr; Yönetim Masası
+          </Link>
+          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>/</span>
           <Link href="/admin/journal" style={{ fontSize: '13px', color: 'var(--accent-sage)', textDecoration: 'none' }}>
             Atölye Günlüğü
           </Link>

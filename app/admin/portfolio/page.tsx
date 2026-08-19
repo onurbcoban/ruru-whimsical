@@ -3,9 +3,9 @@ import Image from 'next/image';
 import { getPublishedPieces } from '@/lib/supabase/queries';
 import { togglePieceArchiveAction, deletePieceAction } from '@/app/admin/actions';
 
-export default async function AdminPiecesListPage() {
+export default async function AdminPortfolioPage() {
   const allPieces = await getPublishedPieces();
-  const shopierPieces = allPieces.filter((p) => p.is_shopier_product);
+  const portfolioPieces = allPieces.filter((p) => !p.is_shopier_product);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -28,15 +28,15 @@ export default async function AdminPiecesListPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <h1 className="font-editorial" style={{ fontSize: '32px', fontWeight: 400, margin: 0 }}>
-              Satıştaki Elbiseler (Shopier Askı)
+              Atölye Portfolyosu & Serbest Sanat
             </h1>
             <p style={{ fontSize: '13.5px', color: 'var(--text-soft)', marginTop: '4px' }}>
-              Hemen satın alınabilecek hazır dikim giysileri, fiyatları ve stok durumlarını buradan yönetin.
+              Satış dışı özel tasarım dikimler, kumaş denemeleri ve serbest zanaat işlerinizi buradan yönetin.
             </p>
           </div>
 
           <Link
-            href="/admin/pieces/new"
+            href="/admin/portfolio/new"
             style={{
               background: 'var(--accent-terracotta)',
               color: '#FFFFFF',
@@ -48,7 +48,7 @@ export default async function AdminPiecesListPage() {
               boxShadow: '0 4px 12px rgba(196, 98, 67, 0.25)',
             }}
           >
-            + Yeni Satış Parçası Ekle
+            + Yeni Portfolyo Eseri Ekle
           </Link>
         </div>
       </div>
@@ -62,13 +62,13 @@ export default async function AdminPiecesListPage() {
           boxShadow: 'var(--shadow-card)',
         }}
       >
-        {shopierPieces.length === 0 ? (
+        {portfolioPieces.length === 0 ? (
           <div style={{ padding: '48px', textAlign: 'center' }}>
             <p style={{ fontSize: '15px', color: 'var(--text-soft)', margin: '0 0 16px' }}>
-              Henüz satışta olan bir elbise bulunmuyor.
+              Henüz atölye portfolyosuna eklenmiş bir eser bulunmuyor.
             </p>
             <Link
-              href="/admin/pieces/new"
+              href="/admin/portfolio/new"
               style={{
                 fontSize: '13.5px',
                 fontWeight: 600,
@@ -76,12 +76,12 @@ export default async function AdminPiecesListPage() {
                 textDecoration: 'none',
               }}
             >
-              + İlk Satış Parçanı Ekle &rarr;
+              + İlk Portfolyo Eserini Ekle &rarr;
             </Link>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {shopierPieces.map((piece, index) => (
+            {portfolioPieces.map((piece, index) => (
               <div
                 key={piece.id}
                 style={{
@@ -89,9 +89,9 @@ export default async function AdminPiecesListPage() {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '20px 24px',
-                  borderBottom: index < shopierPieces.length - 1 ? '1px solid var(--border-warm)' : 'none',
-                  gap: '16px',
+                  borderBottom: index < portfolioPieces.length - 1 ? '1px solid var(--border-warm)' : 'none',
                   flexWrap: 'wrap',
+                  gap: '16px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -113,7 +113,7 @@ export default async function AdminPiecesListPage() {
                     <h3 className="font-editorial" style={{ fontSize: '20px', fontWeight: 500, margin: 0 }}>
                       {piece.title}
                     </h3>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                       <span
                         style={{
                           fontSize: '11px',
@@ -126,16 +126,9 @@ export default async function AdminPiecesListPage() {
                       >
                         {piece.category}
                       </span>
-                      {piece.price && (
-                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent-terracotta)' }}>
-                          {piece.price} ₺
-                        </span>
-                      )}
-                      {piece.shopier_sku && (
-                        <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>
-                          SKU: {piece.shopier_sku}
-                        </span>
-                      )}
+                      <span style={{ fontSize: '12px', color: 'var(--accent-sage)', fontWeight: 500 }}>
+                        {piece.category === 'serbest-calisma' ? '🎨 Serbest Zanaat' : '🧵 Özel Atölye Tasarımı'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -151,7 +144,7 @@ export default async function AdminPiecesListPage() {
                       color: piece.is_archived ? 'var(--text-muted)' : 'var(--accent-sage)',
                     }}
                   >
-                    {piece.is_archived ? 'Arşivde / Tükendi' : 'Satışta'}
+                    {piece.is_archived ? 'Arşivde' : 'Yayında'}
                   </span>
 
                   <Link
@@ -183,7 +176,7 @@ export default async function AdminPiecesListPage() {
                         cursor: 'pointer',
                       }}
                     >
-                      {piece.is_archived ? 'Satışa Al' : 'Arşive Kaldır'}
+                      {piece.is_archived ? 'Yayına Al' : 'Arşive Kaldır'}
                     </button>
                   </form>
 

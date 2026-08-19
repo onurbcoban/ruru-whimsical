@@ -57,7 +57,7 @@ export default function AdminLayout({
             </span>
           </div>
 
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <Link
               href="/admin"
               style={{
@@ -78,7 +78,18 @@ export default function AdminLayout({
                 textDecoration: 'none',
               }}
             >
-              Parçalar & Giysiler
+              Satıştaki Elbiseler
+            </Link>
+            <Link
+              href="/admin/portfolio"
+              style={{
+                fontSize: '13.5px',
+                fontWeight: 500,
+                color: 'var(--text-soft)',
+                textDecoration: 'none',
+              }}
+            >
+              Atölye Portfolyosu
             </Link>
             <Link
               href="/admin/journal"

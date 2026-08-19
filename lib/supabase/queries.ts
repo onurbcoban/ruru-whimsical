@@ -219,6 +219,51 @@ export async function getLatestJournalNote(): Promise<JournalNote | null> {
   }
 }
 
+export async function getAllJournalNotes(): Promise<JournalNote[]> {
+  try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return [MOCK_JOURNAL];
+    }
+
+    const supabase = await createServerClient();
+    const { data, error } = await supabase
+      .from('journal_notes')
+      .select('*')
+      .order('published_at', { ascending: false });
+
+    if (error || !data) {
+      return [MOCK_JOURNAL];
+    }
+
+    return data as JournalNote[];
+  } catch {
+    return [MOCK_JOURNAL];
+  }
+}
+
+export async function getJournalNoteById(id: string): Promise<JournalNote | null> {
+  try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return MOCK_JOURNAL.id === id ? MOCK_JOURNAL : null;
+    }
+
+    const supabase = await createServerClient();
+    const { data, error } = await supabase
+      .from('journal_notes')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
+      return MOCK_JOURNAL.id === id ? MOCK_JOURNAL : null;
+    }
+
+    return data as JournalNote;
+  } catch {
+    return MOCK_JOURNAL.id === id ? MOCK_JOURNAL : null;
+  }
+}
+
 const MOCK_SOCIAL_EMBEDS: SocialEmbed[] = [
   // 4 Instagram Paylaşımı
   {
@@ -307,13 +352,13 @@ export async function getSocialEmbeds(): Promise<SocialEmbed[]> {
     const { data, error } = await supabase
       .from('social_embeds')
       .select('*')
-      .order('order_index', { ascending: true });
+      .order('created_at', { ascending: false });
 
-    if (error || !data || data.length === 0) {
+    if (error) {
       return MOCK_SOCIAL_EMBEDS;
     }
 
-    return data as SocialEmbed[];
+    return (data || []) as SocialEmbed[];
   } catch {
     return MOCK_SOCIAL_EMBEDS;
   }

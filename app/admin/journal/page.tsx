@@ -1,19 +1,20 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getLatestJournalNote } from '@/lib/supabase/queries';
+import { getAllJournalNotes } from '@/lib/supabase/queries';
+import { deleteJournalNoteAction } from '@/app/admin/actions';
 
 export default async function AdminJournalPage() {
-  const latestJournal = await getLatestJournalNote();
+  const journalNotes = await getAllJournalNotes();
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', maxWidth: '900px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 className="font-editorial" style={{ fontSize: '32px', fontWeight: 400, margin: 0 }}>
             Atölye Günlüğü Yazıları
           </h1>
           <p style={{ fontSize: '13.5px', color: 'var(--text-soft)', marginTop: '4px' }}>
-            Atölyeden notlar, kumaş felsefesi ve ilham alıntılarını buradan yönetebilirsiniz.
+            Atölyeden notlar, kumaş felsefesi ve ilham alıntılarını buradan ekleyebilir, düzenleyebilir ve silebilirsiniz.
           </p>
         </div>
 
@@ -34,103 +35,142 @@ export default async function AdminJournalPage() {
         </Link>
       </div>
 
-      <div
-        style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border-warm)',
-          borderRadius: 'var(--radius-card)',
-          overflow: 'hidden',
-          boxShadow: 'var(--shadow-card)',
-        }}
-      >
-        {latestJournal ? (
-          <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
-              <div>
-                <span
-                  style={{
-                    background: 'var(--bg-linen-tag)',
-                    color: 'var(--accent-sage)',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    padding: '3px 10px',
-                    borderRadius: '12px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                  }}
-                >
-                  Yayında
-                </span>
-                <h3 className="font-editorial" style={{ fontSize: '24px', fontWeight: 400, marginTop: '8px', marginBottom: '4px' }}>
-                  {latestJournal.title}
-                </h3>
-                <span style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>
-                  Yayın Tarihi: {new Date(latestJournal.published_at).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}
-                </span>
-              </div>
-
-              <Link
-                href="/gunluk"
-                target="_blank"
-                style={{
-                  fontSize: '12.5px',
-                  color: 'var(--accent-sage)',
-                  textDecoration: 'none',
-                  fontWeight: 600,
-                  padding: '6px 14px',
-                  borderRadius: '20px',
-                  border: '1px solid var(--border-warm)',
-                  background: 'var(--bg-main)',
-                }}
-              >
-                Sitede Görüntüle ↗
-              </Link>
-            </div>
-
-            <blockquote
-              className="font-editorial"
+      {journalNotes.length === 0 ? (
+        <div
+          style={{
+            background: 'var(--bg-surface)',
+            border: '1px dashed var(--border-warm)',
+            borderRadius: 'var(--radius-card)',
+            padding: '40px',
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ fontSize: '15px', color: 'var(--text-soft)', margin: 0 }}>
+            Henüz eklenmiş bir günlük notu bulunmuyor.
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {journalNotes.map((note) => (
+            <div
+              key={note.id}
               style={{
-                fontStyle: 'italic',
-                fontSize: '17px',
-                color: 'var(--accent-terracotta)',
-                borderLeft: '3px solid var(--accent-terracotta)',
-                paddingLeft: '16px',
-                margin: '8px 0',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-warm)',
+                borderRadius: 'var(--radius-card)',
+                padding: '24px 28px',
+                boxShadow: 'var(--shadow-card)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
               }}
             >
-              &ldquo;{latestJournal.quote}&rdquo;
-            </blockquote>
-
-            <p style={{ fontSize: '14.5px', color: 'var(--text-soft)', lineHeight: 1.75, margin: 0 }}>
-              {latestJournal.content}
-            </p>
-
-            {latestJournal.photo_urls && latestJournal.photo_urls.length > 0 && (
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '12px' }}>
-                {latestJournal.photo_urls.map((url, idx) => (
-                  <div
-                    key={idx}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <span
                     style={{
-                      position: 'relative',
-                      width: '90px',
-                      height: '90px',
-                      borderRadius: '8px',
-                      overflow: 'hidden',
-                      border: '1px solid var(--border-warm)',
+                      background: 'rgba(122, 138, 116, 0.15)',
+                      color: 'var(--accent-sage)',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      padding: '3px 10px',
+                      borderRadius: '12px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
                     }}
                   >
-                    <Image src={url} alt={`Atölye görseli ${idx + 1}`} fill style={{ objectFit: 'cover' }} />
-                  </div>
-                ))}
+                    Yayında
+                  </span>
+                  <h3 className="font-editorial" style={{ fontSize: '24px', fontWeight: 400, marginTop: '8px', marginBottom: '4px' }}>
+                    {note.title}
+                  </h3>
+                  <span style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>
+                    Yayın Tarihi: {new Date(note.published_at).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Link
+                    href={`/admin/journal/${note.id}`}
+                    style={{
+                      fontSize: '12.5px',
+                      color: 'var(--accent-terracotta)',
+                      textDecoration: 'none',
+                      fontWeight: 600,
+                      padding: '6px 14px',
+                      borderRadius: '20px',
+                      border: '1px solid var(--border-warm)',
+                      background: 'var(--bg-main)',
+                    }}
+                  >
+                    Düzenle ✎
+                  </Link>
+
+                  <form action={deleteJournalNoteAction.bind(null, note.id)}>
+                    <button
+                      type="submit"
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid rgba(229, 62, 62, 0.3)',
+                        color: '#E53E3E',
+                        fontSize: '12.5px',
+                        fontWeight: 600,
+                        padding: '6px 14px',
+                        borderRadius: '20px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Sil
+                    </button>
+                  </form>
+                </div>
               </div>
-            )}
-          </div>
-        ) : (
-          <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-muted)' }}>
-            Henüz yayınlanmış bir günlük notu bulunmuyor.
-          </div>
-        )}
-      </div>
+
+              {note.quote && (
+                <blockquote
+                  className="font-editorial"
+                  style={{
+                    fontStyle: 'italic',
+                    fontSize: '16px',
+                    color: 'var(--accent-terracotta)',
+                    borderLeft: '3px solid var(--accent-terracotta)',
+                    paddingLeft: '14px',
+                    margin: '4px 0',
+                  }}
+                >
+                  &ldquo;{note.quote}&rdquo;
+                </blockquote>
+              )}
+
+              {note.content && (
+                <p style={{ fontSize: '13.5px', color: 'var(--text-soft)', lineHeight: 1.6, margin: 0 }}>
+                  {note.content}
+                </p>
+              )}
+
+              {note.photo_urls && note.photo_urls.length > 0 && (
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '6px' }}>
+                  {note.photo_urls.map((photo, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        position: 'relative',
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: 'var(--radius-sm)',
+                        overflow: 'hidden',
+                        border: '1px solid var(--border-warm)',
+                      }}
+                    >
+                      <Image src={photo} alt={`Not görseli ${i + 1}`} fill style={{ objectFit: 'cover' }} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

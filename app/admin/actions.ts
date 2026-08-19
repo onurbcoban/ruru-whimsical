@@ -291,6 +291,62 @@ export async function saveJournalNoteAction(formData: FormData) {
   revalidatePath('/admin');
 }
 
+export async function updateJournalNoteAction(id: string, formData: FormData) {
+  await requireAdminAuth();
+
+  const title = formData.get('title') as string;
+  const quote = (formData.get('quote') as string) || null;
+  const content = (formData.get('content') as string) || null;
+  const photo_urls_raw = formData.get('photo_urls') as string;
+
+  let photo_urls: string[] = [];
+  try {
+    if (photo_urls_raw) photo_urls = JSON.parse(photo_urls_raw);
+  } catch (e) {
+    photo_urls = [];
+  }
+
+  if (isLiveSupabaseConfigured()) {
+    try {
+      const supabase = await createServerClient();
+      await supabase
+        .from('journal_notes')
+        .update({
+          title,
+          quote,
+          content,
+          photo_urls,
+        })
+        .eq('id', id);
+    } catch (err) {
+      console.error('Database journal update exception:', err);
+    }
+  }
+
+  revalidatePath('/');
+  revalidatePath('/gunluk');
+  revalidatePath('/admin/journal');
+  revalidatePath('/admin');
+}
+
+export async function deleteJournalNoteAction(id: string) {
+  await requireAdminAuth();
+
+  if (isLiveSupabaseConfigured()) {
+    try {
+      const supabase = await createServerClient();
+      await supabase.from('journal_notes').delete().eq('id', id);
+    } catch (err) {
+      console.error('Database journal delete exception:', err);
+    }
+  }
+
+  revalidatePath('/');
+  revalidatePath('/gunluk');
+  revalidatePath('/admin/journal');
+  revalidatePath('/admin');
+}
+
 export async function createSocialEmbedAction(formData: FormData) {
   await requireAdminAuth();
 

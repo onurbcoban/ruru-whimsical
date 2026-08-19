@@ -3,15 +3,22 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { saveJournalNoteAction } from '@/app/admin/actions';
+import { saveJournalNoteAction, updateJournalNoteAction } from '@/app/admin/actions';
 import { ImageUploader } from '@/components/admin/ImageUploader';
+import type { JournalNote } from '@/types/database';
 
-export function JournalForm() {
+interface JournalFormProps {
+  initialData?: JournalNote;
+}
+
+export function JournalForm({ initialData }: JournalFormProps) {
   const router = useRouter();
-  const [title, setTitle] = useState('');
-  const [quote, setQuote] = useState('');
-  const [content, setContent] = useState('');
-  const [photos, setPhotos] = useState<string[]>([]);
+  const isEditing = !!initialData;
+
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [quote, setQuote] = useState(initialData?.quote || '');
+  const [content, setContent] = useState(initialData?.content || '');
+  const [photos, setPhotos] = useState<string[]>(initialData?.photo_urls || []);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -27,7 +34,11 @@ export function JournalForm() {
     formData.append('photo_urls', JSON.stringify(photos));
 
     try {
-      await saveJournalNoteAction(formData);
+      if (isEditing && initialData) {
+        await updateJournalNoteAction(initialData.id, formData);
+      } else {
+        await saveJournalNoteAction(formData);
+      }
       router.push('/admin/journal');
       router.refresh();
     } catch (err: any) {
@@ -67,22 +78,26 @@ export function JournalForm() {
           border: '1px solid var(--border-warm)',
           borderRadius: 'var(--radius-card)',
           padding: '32px',
-          boxShadow: 'var(--shadow-sm)',
+          boxShadow: 'var(--shadow-card)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px',
+          gap: '24px',
         }}
       >
+        <h2 className="font-editorial" style={{ fontSize: '24px', fontWeight: 400, margin: 0 }}>
+          {isEditing ? 'Günlük Notunu Düzenle' : 'Yeni Not Detayları'}
+        </h2>
+
         <div>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>
-            Günlük Başlığı
+            Not Başlığı *
           </label>
           <input
             type="text"
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Örn: Keten Kumaşın Hafızası"
+            placeholder="Örn: Keten Kumaşın Hafızası & Dikiş Masası Notları"
             style={{
               width: '100%',
               padding: '12px 14px',
@@ -98,13 +113,13 @@ export function JournalForm() {
 
         <div>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>
-            Öne Çıkan Alıntı (Quote - Opsiyonel)
+            Vurgulanan Alıntı Cümlesi (İsteğe Bağlı)
           </label>
           <input
             type="text"
             value={quote}
             onChange={(e) => setQuote(e.target.value)}
-            placeholder="Örn: Keten kumaş ütü sevmez; kırışıklıkları günün kanıtıdır."
+            placeholder="Örn: Keten kumaş ütü sevmez; kırışıklıkları onun gün boyunca sizinle yaşadığının kanıtıdır."
             style={{
               width: '100%',
               padding: '12px 14px',
@@ -120,13 +135,13 @@ export function JournalForm() {
 
         <div>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>
-            Günlük Yazısı (Tam Metin - Opsiyonel)
+            Yazı İçeriği & Düşünceler (İsteğe Bağlı)
           </label>
           <textarea
             rows={6}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Dikiş masasında bu hafta neler oldu, kumaşlar nasıl dökülüyor..."
+            placeholder="Kumaşın hikayesi, dikiş makinesi başındaki anlar, hisler..."
             style={{
               width: '100%',
               padding: '12px 14px',
@@ -135,24 +150,33 @@ export function JournalForm() {
               background: 'var(--bg-main)',
               color: 'var(--text-main)',
               fontSize: '14px',
-              lineHeight: 1.65,
+              fontFamily: 'inherit',
+              lineHeight: 1.6,
               boxSizing: 'border-box',
+              resize: 'vertical',
             }}
           />
         </div>
 
         <ImageUploader
-          label="Atölye Fotoğrafları (Cihazınızdan Birden Fazla Seçebilirsiniz)"
+          label="Atölye Kamera Arkası Fotoğrafları (En fazla 3 adet)"
           value={photos}
-          multiple={true}
+          multiple
           bucketName="journal"
           onChange={(urls) => setPhotos(urls as string[])}
         />
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link href="/admin/journal" style={{ fontSize: '13.5px', color: 'var(--text-soft)', textDecoration: 'none' }}>
-          ← Günlüğe Dön
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+        <Link
+          href="/admin/journal"
+          style={{
+            fontSize: '13.5px',
+            color: 'var(--text-soft)',
+            textDecoration: 'none',
+          }}
+        >
+          &larr; İptal Et ve Listeye Dön
         </Link>
 
         <button
@@ -167,10 +191,10 @@ export function JournalForm() {
             fontSize: '14px',
             fontWeight: 600,
             cursor: submitting ? 'not-allowed' : 'pointer',
-            boxShadow: '0 4px 12px rgba(196, 98, 67, 0.25)',
+            boxShadow: '0 4px 14px rgba(196, 98, 67, 0.25)',
           }}
         >
-          {submitting ? 'Yayınlanıyor...' : 'Günlüğü Yayınla'}
+          {submitting ? 'Kaydediliyor...' : isEditing ? 'Değişiklikleri Kaydet' : 'Günlük Notunu Yayınla'}
         </button>
       </div>
     </form>

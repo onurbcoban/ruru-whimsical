@@ -15,28 +15,20 @@ export function Navbar() {
   return (
     <header
       style={{
-        position: 'sticky',
-        top: '16px',
-        zIndex: 50,
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border-warm)',
-        borderRadius: '40px',
-        padding: '12px 24px',
-        boxShadow: 'var(--shadow-card)',
-        backdropFilter: 'blur(12px)',
+        padding: '4px 0 12px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: '16px',
-        marginBottom: '48px',
+        gap: '20px',
+        marginBottom: '40px',
       }}
     >
       <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
         <span
           className="font-editorial"
           style={{
-            fontSize: '24px',
+            fontSize: '26px',
             fontStyle: 'italic',
             fontWeight: 600,
             letterSpacing: '-0.3px',
@@ -52,18 +44,18 @@ export function Navbar() {
             fontSize: '14px',
             color: 'var(--accent-sage)',
             display: 'block',
-            marginTop: '2px',
+            marginTop: '3px',
           }}
         >
           dikiş atölyesi
         </span>
       </Link>
 
-      <nav style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+      <nav style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
         <a
           href={getHref('#aski')}
           style={{
-            fontSize: '13.5px',
+            fontSize: '14px',
             fontWeight: 500,
             color: 'var(--text-soft)',
             textDecoration: 'none',
@@ -75,7 +67,7 @@ export function Navbar() {
         <a
           href={getHref('#arsiv')}
           style={{
-            fontSize: '13.5px',
+            fontSize: '14px',
             fontWeight: 500,
             color: 'var(--text-muted)',
             textDecoration: 'none',
@@ -87,7 +79,7 @@ export function Navbar() {
         <a
           href={getHref('#atolye')}
           style={{
-            fontSize: '13.5px',
+            fontSize: '14px',
             fontWeight: 500,
             color: 'var(--text-soft)',
             textDecoration: 'none',
@@ -99,7 +91,7 @@ export function Navbar() {
         <Link
           href="/gunluk"
           style={{
-            fontSize: '13.5px',
+            fontSize: '14px',
             fontWeight: 500,
             color: pathname === '/gunluk' ? 'var(--accent-terracotta)' : 'var(--text-soft)',
             textDecoration: 'none',
@@ -111,7 +103,7 @@ export function Navbar() {
         <a
           href={getHref('#serbest')}
           style={{
-            fontSize: '13.5px',
+            fontSize: '14px',
             fontWeight: 500,
             color: 'var(--text-soft)',
             textDecoration: 'none',
@@ -123,7 +115,7 @@ export function Navbar() {
         <a
           href={getHref('#sosyal')}
           style={{
-            fontSize: '13.5px',
+            fontSize: '14px',
             fontWeight: 500,
             color: 'var(--text-soft)',
             textDecoration: 'none',
@@ -151,7 +143,7 @@ export function Navbar() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            boxShadow: '0 4px 12px rgba(196, 98, 67, 0.25)',
+            boxShadow: '0 4px 12px rgba(196, 98, 67, 0.2)',
           }}
         >
           Shopier Vitrini ↗

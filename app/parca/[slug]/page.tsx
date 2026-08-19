@@ -80,26 +80,64 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
     }
   }
 
-  const isFreeWork = piece.category === 'serbest-calisma' || piece.category === 'Serbest Çalışma';
+  const isFreeWork =
+    piece.category === 'serbest-calisma' ||
+    piece.category === 'Serbest Çalışma' ||
+    piece.showcase_section === 'creative';
+  const isPortfolio = !piece.is_shopier_product;
   const isArchive = piece.is_archived || piece.category === 'arsiv' || piece.category === 'Arşiv';
   const hasCraftDetails = piece.craft_details && piece.craft_details.length > 0;
-  const hasSizeInfo = !!(piece.size_info || piece.measurements);
+  const hasSizeInfo = !!(piece.size_info?.trim() || piece.measurements?.trim());
 
   const badgeText = isArchive
     ? 'Arşiv / Tükendi'
     : isFreeWork
-    ? 'Serbest Çalışma'
-    : piece.is_shopier_product
-    ? 'Shopier Satışında'
-    : 'Atölye Tasarımı';
+      ? 'Serbest Zanaat'
+      : isPortfolio
+        ? 'Atölye Portfolyosu'
+        : 'Shopier Satışında';
 
   const badgeColor = isArchive
     ? 'var(--text-muted)'
     : isFreeWork
-    ? 'var(--accent-terracotta)'
-    : piece.is_shopier_product
-    ? 'var(--accent-terracotta)'
-    : 'var(--accent-sage)';
+      ? 'var(--accent-terracotta)'
+      : piece.is_shopier_product
+        ? 'var(--accent-terracotta)'
+        : 'var(--accent-sage)';
+
+  const storyHeading = isFreeWork
+    ? 'çalışmanın hikayesi & ilhamı'
+    : isPortfolio
+      ? 'tasarımın ve eserin hikayesi'
+      : 'kumaşın ve giysinin hikayesi';
+
+  const signatureText = isFreeWork
+    ? 'rümeysa • atölye serbest denemesi'
+    : isPortfolio
+      ? 'rümeysa • atölyede elde üretildi'
+      : 'rümeysa • atölyede elde dikildi';
+
+  const categorySubhead = isFreeWork
+    ? 'serbest zanaat • atölye portfolyosu'
+    : isPortfolio
+      ? `${piece.category} • atölye portfolyosu`
+      : `${piece.category} • rümeysa atölye seçkisi`;
+
+  const sectionHref = isArchive
+    ? '/#arsiv'
+    : isFreeWork
+      ? '/#serbest'
+      : piece.is_shopier_product
+        ? '/#aski'
+        : '/#atolye';
+
+  const sectionLabel = isArchive
+    ? 'arşiv'
+    : isFreeWork
+      ? 'craftlarım'
+      : piece.is_shopier_product
+        ? 'askıdakiler'
+        : 'özel atölye';
 
   const productJsonLd = {
     '@context': 'https://schema.org',
@@ -125,9 +163,59 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
   };
 
   return (
-    <main className="container-custom" style={{ padding: '24px 24px 100px' }}>
+    <main
+      className="container-custom"
+      style={{
+        padding: '12px 24px 0',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <JsonLd data={productJsonLd} />
       <Navbar />
+
+      {/* Breadcrumb Yol Navigasyonu */}
+      <nav
+        aria-label="Breadcrumb"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontSize: '13px',
+          marginBottom: '28px',
+          color: 'var(--text-muted)',
+          flexWrap: 'wrap',
+        }}
+      >
+        <Link
+          href="/"
+          style={{
+            color: 'var(--text-soft)',
+            textDecoration: 'none',
+            fontWeight: 500,
+            transition: 'color 0.2s ease',
+          }}
+        >
+          rürü whimsical
+        </Link>
+        <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>→</span>
+        <Link
+          href={sectionHref}
+          style={{
+            color: 'var(--text-soft)',
+            textDecoration: 'none',
+            fontWeight: 500,
+            transition: 'color 0.2s ease',
+          }}
+        >
+          {sectionLabel}
+        </Link>
+        <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>→</span>
+        <span style={{ color: 'var(--accent-terracotta)', fontWeight: 600 }}>
+          {piece.title}
+        </span>
+      </nav>
 
       <div
         style={{
@@ -135,6 +223,7 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
           gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
           gap: '56px',
           alignItems: 'start',
+          flex: 1,
         }}
       >
         <div>
@@ -147,7 +236,7 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '26px' }}>
           <div>
             <span
               style={{
@@ -157,10 +246,10 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
                 color: 'var(--accent-sage)',
                 fontWeight: 600,
                 display: 'block',
-                marginBottom: '8px',
+                marginBottom: '6px',
               }}
             >
-              {isFreeWork ? 'serbest çalışma • atölye portfolyosu' : `${piece.category} • rümeysa atölye seçkisi`}
+              {categorySubhead}
             </span>
 
             <h1
@@ -169,7 +258,7 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
                 fontSize: '40px',
                 fontWeight: 400,
                 lineHeight: 1.15,
-                marginBottom: '16px',
+                margin: 0,
               }}
             >
               {piece.title}
@@ -181,9 +270,7 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
                   display: 'flex',
                   alignItems: 'center',
                   gap: '20px',
-                  padding: '20px 0',
-                  borderTop: '1px dashed var(--border-warm)',
-                  borderBottom: '1px dashed var(--border-warm)',
+                  padding: '16px 0 4px',
                 }}
               >
                 <span className="font-editorial" style={{ fontSize: '32px', fontWeight: 600 }}>
@@ -229,66 +316,73 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
             )}
           </div>
 
-          {hasSizeInfo && (
-            <div
-              style={{
-                background: 'var(--bg-card-alt)',
-                border: '1px solid var(--border-warm)',
-                borderRadius: 'var(--radius-card)',
-                padding: '16px 20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '6px',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Beden & Kalıp:
-                  </span>
-                  {piece.size_info && (
-                    <span style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--accent-terracotta)' }}>
-                      {piece.size_info}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {piece.measurements && (
-                <div style={{ fontSize: '12.5px', color: 'var(--text-soft)', lineHeight: 1.5, marginTop: '2px' }}>
-                  {piece.measurements}
-                </div>
-              )}
-            </div>
-          )}
-
           <div>
-            <span className="font-hand" style={{ fontSize: '22px', color: 'var(--accent-terracotta)', display: 'block', marginBottom: '8px' }}>
-              {isFreeWork ? 'çalışmanın ardındaki ilham' : 'kumaşın ve dikişin hikayesi'}
+            <span className="font-hand" style={{ fontSize: '24px', color: 'var(--accent-terracotta)', display: 'block', marginBottom: '6px' }}>
+              {storyHeading}
             </span>
             <p style={{ fontSize: '16.5px', color: 'var(--text-soft)', lineHeight: 1.85, margin: 0 }}>
               {piece.story}
             </p>
           </div>
 
-          {hasCraftDetails && (
+          {(hasSizeInfo || hasCraftDetails) && (
             <div
               style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border-warm)',
-                borderRadius: 'var(--radius-card)',
-                padding: '24px',
-                boxShadow: 'var(--shadow-sm)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
               }}
             >
-              <h3 className="font-editorial" style={{ fontSize: '20px', fontWeight: 500, marginBottom: '16px' }}>
-                Zanaat & Detay Özellikleri
+              <h3 className="font-editorial" style={{ fontSize: '19px', fontWeight: 500, margin: '0 0 2px', color: 'var(--text-main)' }}>
+                Atölye & Detay Notları
               </h3>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
-                {piece.craft_details!.map((detail, idx) => (
-                  <div key={idx}>
-                    <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', display: 'block', marginBottom: '3px' }}>
+              {piece.size_info && (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'baseline',
+                  }}
+                >
+                  <span style={{ fontSize: '13px', color: 'var(--text-soft)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Beden & Kalıp
+                  </span>
+                  <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-main)' }}>
+                    {piece.size_info}
+                  </span>
+                </div>
+              )}
+
+              {piece.measurements && (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    gap: '16px',
+                  }}
+                >
+                  <span style={{ fontSize: '13px', color: 'var(--text-soft)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
+                    Ölçüler (cm)
+                  </span>
+                  <span style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--text-main)', textAlign: 'right', lineHeight: 1.5 }}>
+                    {piece.measurements}
+                  </span>
+                </div>
+              )}
+
+              {hasCraftDetails &&
+                piece.craft_details!.map((detail, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'baseline',
+                    }}
+                  >
+                    <span style={{ fontSize: '13px', color: 'var(--text-soft)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       {detail.label}
                     </span>
                     <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-main)' }}>
@@ -296,26 +390,13 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
                     </span>
                   </div>
                 ))}
-              </div>
             </div>
           )}
 
-          <div style={{ borderTop: '1.5px dashed var(--border-warm)', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ paddingTop: '10px' }}>
             <span className="font-hand" style={{ fontSize: '20px', color: 'var(--accent-terracotta)' }}>
-              {isFreeWork ? 'rümeysa • atölye serbest denemesi' : 'rümeysa • atölyede elde dikildi'}
+              {signatureText}
             </span>
-
-            <Link
-              href="/"
-              style={{
-                fontSize: '13px',
-                fontWeight: 600,
-                color: 'var(--accent-sage)',
-                textDecoration: 'none',
-              }}
-            >
-              Vitrine Dön &rarr;
-            </Link>
           </div>
         </div>
       </div>

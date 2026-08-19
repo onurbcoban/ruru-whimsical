@@ -25,15 +25,12 @@ export function ArchiveShowcase({ pieces }: ArchiveShowcaseProps) {
     <div
       id="arsiv"
       style={{
-        marginBottom: '90px',
-        scrollMarginTop: '100px',
-        borderTop: '1.5px dashed var(--border-stitch)',
-        borderBottom: isOpen ? '1.5px dashed var(--border-stitch)' : 'none',
-        paddingTop: '20px',
-        paddingBottom: isOpen ? '40px' : '0',
+        marginBottom: '100px',
+        scrollMarginTop: '60px',
+        paddingTop: '16px',
       }}
     >
-      {/* Doğal, Sıralı Keten Satırı */}
+      {/* Doğal, Sıralı Keten Başlık Satırı */}
       <div
         onClick={() => setIsOpen(!isOpen)}
         style={{
@@ -42,25 +39,24 @@ export function ArchiveShowcase({ pieces }: ArchiveShowcaseProps) {
           gap: '12px',
           cursor: 'pointer',
           userSelect: 'none',
-          padding: '6px 0',
+          padding: '8px 0',
           flexWrap: 'wrap',
         }}
       >
-        <span className="font-hand" style={{ fontSize: '22px', color: 'var(--accent-terracotta)' }}>
+        <span className="font-hand" style={{ fontSize: '24px', color: 'var(--accent-terracotta)' }}>
           geçmişten dikimler
         </span>
 
-        <span style={{ fontSize: '13.5px', color: 'var(--text-muted)' }}>
+        <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
           • sahiplerine ulaşan parçalar
         </span>
 
-        {/* Cümlenin En Sağında Duran Keten Etiket Rozeti */}
+        {/* Rozet */}
         <div
           style={{
-            background: isOpen ? 'var(--bg-card-alt)' : 'var(--bg-linen-tag)',
-            border: '1px solid var(--border-warm)',
+            background: 'var(--bg-linen-tag)',
             color: 'var(--text-main)',
-            padding: '4px 12px',
+            padding: '4px 14px',
             borderRadius: '20px',
             fontSize: '12px',
             fontWeight: 600,
@@ -94,43 +90,48 @@ export function ArchiveShowcase({ pieces }: ArchiveShowcaseProps) {
       {isOpen && (
         <div
           style={{
-            marginTop: '28px',
+            marginTop: '36px',
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
-            gap: '28px',
+            gap: '36px',
           }}
         >
           {archivePieces.map((piece) => (
             <article
               key={piece.id}
               style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border-warm)',
-                borderRadius: 'var(--radius-card)',
-                overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
-                boxShadow: 'var(--shadow-sm)',
-                opacity: 0.92,
+                gap: '12px',
               }}
             >
               <Link
                 href={`/parca/${piece.slug}`}
-                style={{ display: 'block', height: '300px', background: 'var(--bg-card-alt)', position: 'relative' }}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'block',
+                  height: '340px',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  filter: 'grayscale(20%) contrast(95%)',
+                  boxShadow: '0 6px 20px rgba(45, 37, 34, 0.06)',
+                }}
               >
                 <Image
                   src={piece.main_image_url}
                   alt={piece.title}
                   fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  style={{ objectFit: 'cover', filter: 'grayscale(15%)' }}
+                  sizes="(max-width: 768px) 100vw, 25vw"
+                  style={{ objectFit: 'cover' }}
                 />
                 <span
                   style={{
                     position: 'absolute',
                     top: '12px',
                     left: '12px',
-                    background: 'var(--bg-surface)',
+                    background: 'var(--bg-canvas)',
                     border: '1px solid var(--border-warm)',
                     borderRadius: '20px',
                     padding: '3px 10px',
@@ -139,34 +140,20 @@ export function ArchiveShowcase({ pieces }: ArchiveShowcaseProps) {
                     color: 'var(--text-muted)',
                   }}
                 >
-                  Arşiv / Tükendi
+                  Tükendi / Arşiv
                 </span>
               </Link>
 
-              <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '4px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)' }}>
                   {piece.category}
                 </span>
-                <h4 className="font-editorial" style={{ fontSize: '22px', fontWeight: 400, marginBottom: '8px' }}>
+
+                <h4 className="font-editorial" style={{ fontSize: '20px', fontWeight: 400, margin: 0 }}>
                   <Link href={`/parca/${piece.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     {piece.title}
                   </Link>
                 </h4>
-                <p style={{ fontSize: '13px', color: 'var(--text-soft)', lineHeight: 1.6, marginBottom: '16px', flex: 1 }}>
-                  {piece.story}
-                </p>
-
-                <div style={{ paddingTop: '12px', borderTop: '1px dashed var(--border-warm)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span className="font-editorial" style={{ fontSize: '14.5px', fontStyle: 'italic', color: 'var(--text-muted)' }}>
-                    Sahibine Ulaştı
-                  </span>
-                  <Link
-                    href={`/parca/${piece.slug}`}
-                    style={{ fontSize: '12.5px', color: 'var(--accent-sage)', textDecoration: 'none', fontWeight: 600 }}
-                  >
-                    Hikaye &rarr;
-                  </Link>
-                </div>
               </div>
             </article>
           ))}

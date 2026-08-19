@@ -1,6 +1,7 @@
 /* Light Theme Tokens */
 :root {
   --bg-canvas: #FAF6EF;
+  --bg-nav: rgba(250, 246, 239, 0.88);
   --bg-surface: #FFFFFF;
   --bg-surface-elevated: #FFFFFF;
   --bg-card-alt: #F4EFE6;
@@ -35,6 +36,7 @@
 /* Dark Theme Tokens (Warm Midnight Espresso & Candlelight) */
 [data-theme="dark"] {
   --bg-canvas: #171311;
+  --bg-nav: rgba(23, 19, 17, 0.88);
   --bg-surface: #221D1A;
   --bg-surface-elevated: #2A2421;
   --bg-card-alt: #1E1917;

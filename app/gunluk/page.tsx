@@ -42,7 +42,15 @@ export default async function JournalPage() {
     : null;
 
   return (
-    <main className="container-custom" style={{ padding: '24px 24px 100px' }}>
+    <main
+      className="container-custom"
+      style={{
+        padding: '12px 24px 0',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       {blogJsonLd && <JsonLd data={blogJsonLd} />}
       <Navbar />
 

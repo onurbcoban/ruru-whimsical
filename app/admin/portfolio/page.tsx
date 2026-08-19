@@ -127,7 +127,7 @@ export default async function AdminPortfolioPage() {
                         {piece.category}
                       </span>
                       <span style={{ fontSize: '12px', color: 'var(--accent-sage)', fontWeight: 500 }}>
-                        {piece.category === 'serbest-calisma' ? '🎨 Serbest Zanaat' : '🧵 Özel Atölye Tasarımı'}
+                        {piece.category === 'serbest-calisma' ? 'Serbest Zanaat' : ' Özel Atölye Tasarımı'}
                       </span>
                     </div>
                   </div>

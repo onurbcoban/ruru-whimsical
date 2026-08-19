@@ -18,34 +18,31 @@ export function CustomShowcase({ pieces }: CustomShowcaseProps) {
   }
 
   return (
-    <section id="atolye" style={{ marginBottom: '110px', scrollMarginTop: '100px' }}>
-      {/* Sola Bitişik Başlık ve Parça Sayısı Rozeti */}
-      <div style={{ marginBottom: '40px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-          <span className="font-hand" style={{ fontSize: '22px', color: 'var(--accent-sage)', display: 'block' }}>
+    <section id="atolye" style={{ marginBottom: '120px', scrollMarginTop: '60px' }}>
+      {/* Sola Bitişik Başlık */}
+      <div style={{ marginBottom: '48px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+          <span className="font-hand" style={{ fontSize: '24px', color: 'var(--accent-sage)', display: 'block' }}>
             atölyeden çıkanlar
           </span>
           <span
             style={{
-              fontSize: '11.5px',
+              fontSize: '12px',
               fontWeight: 600,
-              background: 'var(--bg-linen-tag)',
               color: 'var(--accent-sage)',
-              padding: '2px 8px',
-              borderRadius: '12px',
-              border: '1px solid var(--border-warm)',
+              letterSpacing: '0.5px',
             }}
           >
-            {customPieces.length} özgün model
+            • {customPieces.length} özel tasarım
           </span>
         </div>
-        <h3 className="font-editorial" style={{ fontSize: '36px', fontWeight: 400, margin: 0 }}>
+        <h3 className="font-editorial" style={{ fontSize: '38px', fontWeight: 400, margin: 0, letterSpacing: '-0.3px' }}>
           Atölye Seçkisi & Tasarım Modelleri
         </h3>
       </div>
 
-      {/* Asimetrik Geniş İkili Blok Düzeni (Haute-Craft Alternating Layout) */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+      {/* Asimetrik Editoryal Alternatif Düzen (Kutusuz, Akıcı) */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '80px' }}>
         {customPieces.map((piece, index) => {
           const isImageLeft = index % 2 === 0;
 
@@ -53,22 +50,21 @@ export function CustomShowcase({ pieces }: CustomShowcaseProps) {
             <article
               key={piece.id}
               style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border-warm)',
-                borderRadius: 'var(--radius-card)',
-                overflow: 'hidden',
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                boxShadow: 'var(--shadow-sm)',
+                gap: '48px',
+                alignItems: 'center',
               }}
             >
               {/* Görsel Alanı */}
               <div
                 style={{
-                  height: '420px',
-                  background: 'var(--bg-card-alt)',
+                  height: '460px',
                   position: 'relative',
                   order: isImageLeft ? 1 : 2,
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  boxShadow: '0 12px 32px rgba(45, 37, 34, 0.09)',
                 }}
               >
                 <Link href={`/parca/${piece.slug}`} style={{ display: 'block', width: '100%', height: '100%', position: 'relative' }}>
@@ -82,19 +78,18 @@ export function CustomShowcase({ pieces }: CustomShowcaseProps) {
                   <span
                     style={{
                       position: 'absolute',
-                      top: '18px',
-                      left: '18px',
-                      background: 'var(--bg-surface)',
+                      top: '16px',
+                      left: '16px',
+                      background: 'var(--bg-canvas)',
                       border: '1px solid var(--border-warm)',
                       borderRadius: '30px',
                       padding: '4px 14px',
                       fontSize: '11px',
                       fontWeight: 600,
                       color: 'var(--accent-sage)',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                     }}
                   >
-                    Atölye Tasarımı
+                    Özel Dikim
                   </span>
                 </Link>
               </div>
@@ -102,59 +97,57 @@ export function CustomShowcase({ pieces }: CustomShowcaseProps) {
               {/* Hikaye & Zanaat Detay Alanı */}
               <div
                 style={{
-                  padding: '44px 36px',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'center',
+                  gap: '16px',
                   order: isImageLeft ? 2 : 1,
-                  background: 'var(--bg-surface)',
+                  padding: '12px 0',
                 }}
               >
                 <span
                   style={{
-                    fontSize: '11px',
+                    fontSize: '12px',
                     textTransform: 'uppercase',
                     letterSpacing: '2px',
                     color: 'var(--accent-sage)',
                     fontWeight: 600,
-                    marginBottom: '10px',
                   }}
                 >
-                  {piece.category} • Tek Parça Model
+                  {piece.category}
                 </span>
 
-                <h4 className="font-editorial" style={{ fontSize: '30px', fontWeight: 400, lineHeight: 1.25, marginBottom: '16px' }}>
+                <h4 className="font-editorial" style={{ fontSize: '32px', fontWeight: 400, margin: 0, lineHeight: 1.2 }}>
                   <Link href={`/parca/${piece.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     {piece.title}
                   </Link>
                 </h4>
 
-                <p style={{ fontSize: '15px', color: 'var(--text-soft)', lineHeight: 1.8, marginBottom: '28px' }}>
+                <p style={{ fontSize: '15.5px', color: 'var(--text-soft)', lineHeight: 1.8, margin: 0 }}>
                   {piece.story}
                 </p>
 
-                <div style={{ paddingTop: '20px', borderTop: '1px dashed var(--border-warm)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                  <span className="font-hand" style={{ fontSize: '20px', color: 'var(--accent-terracotta)' }}>
-                    özgün dikiş • arşivlik parça
-                  </span>
+                {piece.craft_details && piece.craft_details.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '6px' }}>
+                    {piece.craft_details.slice(0, 3).map((detail, idx) => (
+                      <div key={idx} style={{ display: 'flex', gap: '6px', fontSize: '13px' }}>
+                        <span style={{ color: 'var(--text-muted)' }}>{detail.label}:</span>
+                        <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{detail.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
+                <div style={{ marginTop: '8px' }}>
                   <Link
                     href={`/parca/${piece.slug}`}
                     style={{
-                      background: 'var(--bg-card-alt)',
-                      border: '1px solid var(--border-warm)',
-                      color: 'var(--text-main)',
-                      padding: '9px 20px',
-                      borderRadius: '30px',
-                      fontSize: '12.5px',
+                      fontSize: '13.5px',
                       fontWeight: 600,
+                      color: 'var(--accent-sage)',
                       textDecoration: 'none',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
                     }}
                   >
-                    Dikiş Detaylarını İncele &rarr;
+                    Tasarım Hikayesi & Detaylar &rarr;
                   </Link>
                 </div>
               </div>

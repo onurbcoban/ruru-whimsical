@@ -1,4 +1,4 @@
-import { getPieces, getLatestJournalNote, getSocialEmbeds } from './supabase/queries';
+import { getPieces, getAllJournalNotes, getLatestJournalNote, getSocialEmbeds } from './supabase/queries';
 import { getShopierProducts, type ShopierProduct } from './shopier';
 import type { Piece, JournalNote, SocialEmbed } from '@/types/database';
 
@@ -11,12 +11,14 @@ export async function getUnifiedShowcase(): Promise<{
   pieces: UnifiedPiece[];
   shopierProducts: ShopierProduct[];
   latestJournal: JournalNote | null;
+  journals: JournalNote[];
   socialEmbeds: SocialEmbed[];
 }> {
   // Paralel veri çekme (Zero latency overhead)
-  const [pieces, shopierProducts, latestJournal, socialEmbeds] = await Promise.all([
+  const [pieces, shopierProducts, journals, latestJournal, socialEmbeds] = await Promise.all([
     getPieces(),
     getShopierProducts(),
+    getAllJournalNotes(),
     getLatestJournalNote(),
     getSocialEmbeds(),
   ]);
@@ -46,6 +48,7 @@ export async function getUnifiedShowcase(): Promise<{
     pieces: enrichedPieces,
     shopierProducts,
     latestJournal,
+    journals,
     socialEmbeds,
   };
 }

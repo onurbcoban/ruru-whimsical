@@ -18,67 +18,58 @@ export function CreativeWorksShowcase({ pieces }: CreativeWorksShowcaseProps) {
   }
 
   return (
-    <section id="serbest" style={{ marginBottom: '110px', scrollMarginTop: '100px' }}>
-      {/* Sola Bitişik Başlık ve Parça Sayısı Rozeti */}
-      <div style={{ marginBottom: '36px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-          <span className="font-hand" style={{ fontSize: '22px', color: 'var(--accent-terracotta)', display: 'block' }}>
+    <section id="serbest" style={{ marginBottom: '120px', scrollMarginTop: '60px' }}>
+      {/* Sola Bitişik Başlık */}
+      <div style={{ marginBottom: '40px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+          <span className="font-hand" style={{ fontSize: '24px', color: 'var(--accent-terracotta)', display: 'block' }}>
             serbest çalışmalar & küçük denemeler
           </span>
           <span
             style={{
-              fontSize: '11.5px',
+              fontSize: '12px',
               fontWeight: 600,
-              background: 'var(--bg-linen-tag)',
               color: 'var(--accent-terracotta)',
-              padding: '2px 8px',
-              borderRadius: '12px',
-              border: '1px solid var(--border-warm)',
+              letterSpacing: '0.5px',
             }}
           >
-            {creativePieces.length} çalışma
+            • {creativePieces.length} eser
           </span>
         </div>
-        <h3 className="font-editorial" style={{ fontSize: '36px', fontWeight: 400, margin: 0 }}>
-          Nakış, Kumaş Panoları ve Çizimler
+        <h3 className="font-editorial" style={{ fontSize: '38px', fontWeight: 400, margin: 0, letterSpacing: '-0.3px' }}>
+          Nakış, Kumaş Panoları ve Zanaat İşleri
         </h3>
       </div>
 
-      {/* Sanat Galerisi & Paspartu Çerçeve Düzeni */}
+      {/* Sanat Galerisi Izgarası (Kutusuz, Saf Tuval Akışı) */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-          gap: '36px',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          gap: '48px 36px',
         }}
       >
         {creativePieces.map((piece) => (
           <article
             key={piece.id}
             style={{
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border-warm)',
-              borderRadius: 'var(--radius-card)',
-              padding: '24px',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: 'var(--shadow-card)',
-              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              gap: '16px',
             }}
           >
-            {/* Sanat Eseri Paspartu Çerçevesi */}
+            {/* Sanat Eseri Görseli */}
             <Link
               href={`/parca/${piece.slug}`}
               style={{
                 textDecoration: 'none',
                 color: 'inherit',
                 display: 'block',
-                height: '320px',
-                borderRadius: 'var(--radius-md)',
+                height: '360px',
+                borderRadius: '18px',
                 overflow: 'hidden',
                 position: 'relative',
-                border: '1px solid var(--border-warm)',
-                background: 'var(--bg-surface)',
+                boxShadow: '0 8px 24px rgba(45, 37, 34, 0.08)',
               }}
             >
               <Image
@@ -91,13 +82,13 @@ export function CreativeWorksShowcase({ pieces }: CreativeWorksShowcaseProps) {
               <span
                 style={{
                   position: 'absolute',
-                  top: '12px',
-                  left: '12px',
-                  background: 'var(--bg-linen-tag)',
+                  top: '14px',
+                  left: '14px',
+                  background: 'var(--bg-canvas)',
                   border: '1px solid var(--border-warm)',
-                  borderRadius: '20px',
-                  padding: '3px 10px',
-                  fontSize: '10.5px',
+                  borderRadius: '30px',
+                  padding: '4px 12px',
+                  fontSize: '11px',
                   fontWeight: 600,
                   color: 'var(--accent-terracotta)',
                 }}
@@ -106,36 +97,54 @@ export function CreativeWorksShowcase({ pieces }: CreativeWorksShowcaseProps) {
               </span>
             </Link>
 
-            <div style={{ padding: '20px 8px 8px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-              <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1.5px', color: 'var(--accent-sage)', fontWeight: 600, marginBottom: '6px' }}>
-                Tekstil & El Emeği
+            {/* Bilgiler & Tipografi */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span
+                style={{
+                  fontSize: '11.5px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1.5px',
+                  color: 'var(--accent-sage)',
+                  fontWeight: 600,
+                }}
+              >
+                {piece.category === 'serbest-calisma' ? 'Atölye Denemesi' : piece.category}
               </span>
 
-              <h4 className="font-editorial" style={{ fontSize: '24px', fontWeight: 400, marginBottom: '10px' }}>
+              <h4 className="font-editorial" style={{ fontSize: '24px', fontWeight: 400, margin: 0, lineHeight: 1.25 }}>
                 <Link href={`/parca/${piece.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   {piece.title}
                 </Link>
               </h4>
 
-              <p style={{ fontSize: '13.5px', color: 'var(--text-soft)', lineHeight: 1.65, marginBottom: '20px', flex: 1 }}>
-                {piece.story}
-              </p>
+              {piece.story && (
+                <p
+                  style={{
+                    fontSize: '14px',
+                    color: 'var(--text-soft)',
+                    lineHeight: 1.65,
+                    margin: 0,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {piece.story}
+                </p>
+              )}
 
-              <div style={{ paddingTop: '14px', borderTop: '1px dashed var(--border-warm)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="font-hand" style={{ fontSize: '18px', color: 'var(--accent-terracotta)' }}>
-                  tek adet • özgün sanat
-                </span>
-
+              <div style={{ marginTop: '6px' }}>
                 <Link
                   href={`/parca/${piece.slug}`}
                   style={{
-                    fontSize: '12.5px',
+                    fontSize: '13px',
                     fontWeight: 600,
-                    color: 'var(--text-main)',
+                    color: 'var(--accent-terracotta)',
                     textDecoration: 'none',
                   }}
                 >
-                  Eseri İncele &rarr;
+                  İlhamı & Hikayesi &rarr;
                 </Link>
               </div>
             </div>

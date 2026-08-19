@@ -3,114 +3,162 @@ import Link from 'next/link';
 import type { JournalNote } from '@/types/database';
 
 interface JournalSectionProps {
-  journal: JournalNote | null;
+  journals?: JournalNote[];
+  journal?: JournalNote | null;
 }
 
-export function JournalSection({ journal }: JournalSectionProps) {
-  if (!journal) {
+export function JournalSection({ journals = [], journal }: JournalSectionProps) {
+  const activeJournals = journals.length > 0 ? journals.slice(0, 2) : journal ? [journal] : [];
+
+  if (activeJournals.length === 0) {
     return null;
   }
 
   return (
-    <section
-      id="gunluk"
-      style={{
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border-warm)',
-        borderRadius: 'var(--radius-card)',
-        padding: '52px 48px',
-        marginBottom: '110px',
-        scrollMarginTop: '100px',
-        boxShadow: 'var(--shadow-card)',
-      }}
-    >
-      <div style={{ maxWidth: '840px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-          <span className="font-hand" style={{ fontSize: '24px', color: 'var(--accent-terracotta)' }}>
-            atölyeden notlar & kumaşın dili
-          </span>
-          <Link
-            href="/gunluk"
-            style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: 'var(--accent-sage)',
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            Tüm Günlüğü Oku &rarr;
-          </Link>
+    <section id="gunluk" style={{ marginBottom: '120px', scrollMarginTop: '60px' }}>
+      {/* Sola Hizalı Bölüm Başlığı */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: '16px', marginBottom: '40px' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+            <span className="font-hand" style={{ fontSize: '24px', color: 'var(--accent-terracotta)' }}>
+              dikiş masasından notlar
+            </span>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-sage)', letterSpacing: '0.5px' }}>
+              • kumaşın dili & günce
+            </span>
+          </div>
+          <h3 className="font-editorial" style={{ fontSize: '38px', fontWeight: 400, margin: 0, letterSpacing: '-0.3px' }}>
+            Atölye Günlüğü
+          </h3>
         </div>
 
-        {journal.quote && (
-          <blockquote
-            className="font-editorial"
+        <Link
+          href="/gunluk"
+          style={{
+            fontSize: '13.5px',
+            fontWeight: 600,
+            color: 'var(--accent-sage)',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          Tüm Günlük Yazıları ({journals.length || 1}) &rarr;
+        </Link>
+      </div>
+
+      {/* İki Sütunlu Editoryal Blog Izgarası */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: activeJournals.length > 1 ? 'repeat(auto-fit, minmax(360px, 1fr))' : '1fr',
+          gap: '48px',
+        }}
+      >
+        {activeJournals.map((item) => (
+          <article
+            key={item.id}
             style={{
-              fontSize: '30px',
-              fontStyle: 'italic',
-              lineHeight: 1.38,
-              marginBottom: '24px',
-              color: 'var(--text-main)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
             }}
           >
-            &ldquo;{journal.quote}&rdquo;
-          </blockquote>
-        )}
-
-        {journal.content && (
-          <p style={{ fontSize: '16px', color: 'var(--text-soft)', lineHeight: 1.85, marginBottom: '32px' }}>
-            {journal.content}
-          </p>
-        )}
-
-        {journal.photo_urls && journal.photo_urls.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginTop: '32px' }}>
-            {journal.photo_urls.map((photoUrl, index) => (
+            {/* Fotoğraf (Varsa) */}
+            {item.photo_urls && item.photo_urls[0] && (
               <div
-                key={index}
                 style={{
                   position: 'relative',
-                  height: '320px',
-                  borderRadius: 'var(--radius-md)',
+                  width: '100%',
+                  height: '280px',
+                  borderRadius: '18px',
                   overflow: 'hidden',
+                  boxShadow: '0 8px 24px rgba(45, 37, 34, 0.08)',
                 }}
               >
                 <Image
-                  src={photoUrl}
-                  alt={`${journal.title} atölye fotoğrafı ${index + 1}`}
+                  src={item.photo_urls[0]}
+                  alt={item.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  style={{ objectFit: 'contain' }}
+                  style={{ objectFit: 'cover' }}
                 />
               </div>
-            ))}
-          </div>
-        )}
+            )}
 
-        <div style={{ marginTop: '32px', paddingTop: '20px', borderTop: '1px dashed var(--border-warm)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-          <span className="font-hand" style={{ fontSize: '20px', color: 'var(--accent-terracotta)' }}>
-            rümeysa • dikiş günlüğü
-          </span>
+            {/* Tarih & Başlık */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <span
+                style={{
+                  fontSize: '11.5px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1.5px',
+                  color: 'var(--accent-sage)',
+                  fontWeight: 600,
+                }}
+              >
+                {new Date(item.published_at).toLocaleDateString('tr-TR', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </span>
 
-          <Link
-            href="/gunluk"
-            style={{
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border-warm)',
-              color: 'var(--text-main)',
-              padding: '8px 20px',
-              borderRadius: '30px',
-              fontSize: '12.5px',
-              fontWeight: 600,
-              textDecoration: 'none',
-            }}
-          >
-            Günlük Yazılarını Keşfet &rarr;
-          </Link>
-        </div>
+              <h4 className="font-editorial" style={{ fontSize: '26px', fontWeight: 400, margin: 0, lineHeight: 1.25 }}>
+                <Link href="/gunluk" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  {item.title}
+                </Link>
+              </h4>
+
+              {item.quote && (
+                <blockquote
+                  className="font-editorial"
+                  style={{
+                    fontSize: '18px',
+                    fontStyle: 'italic',
+                    color: 'var(--accent-terracotta)',
+                    lineHeight: 1.5,
+                    margin: '4px 0 0',
+                  }}
+                >
+                  &ldquo;{item.quote}&rdquo;
+                </blockquote>
+              )}
+
+              {item.content && (
+                <p
+                  style={{
+                    fontSize: '14.5px',
+                    color: 'var(--text-soft)',
+                    lineHeight: 1.7,
+                    margin: 0,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {item.content}
+                </p>
+              )}
+
+              <div style={{ marginTop: '8px' }}>
+                <Link
+                  href="/gunluk"
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: 'var(--text-main)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  Okumaya Devam Et &rarr;
+                </Link>
+              </div>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   );

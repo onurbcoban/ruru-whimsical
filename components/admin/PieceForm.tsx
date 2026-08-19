@@ -308,28 +308,6 @@ export function PieceForm({ piece }: PieceFormProps) {
               }}
             />
           </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>
-              Shopier Ürün Kodu (SKU - Opsiyonel)
-            </label>
-            <input
-              type="text"
-              value={shopierSku}
-              onChange={(e) => setShopierSku(e.target.value)}
-              placeholder="Örn: RR-TIRSE-01"
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border-warm)',
-                background: 'var(--bg-main)',
-                color: 'var(--text-main)',
-                fontSize: '14px',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
         </div>
       </div>
 

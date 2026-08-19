@@ -118,7 +118,7 @@ export function Navbar() {
             transition: 'color 0.2s ease',
           }}
         >
-          serbest işler
+          craftlarım
         </a>
         <a
           href={getHref('#sosyal')}
@@ -130,7 +130,7 @@ export function Navbar() {
             transition: 'color 0.2s ease',
           }}
         >
-          canlı anlar
+          sosyal medya
         </a>
       </nav>
 

@@ -206,14 +206,17 @@ export async function getLatestJournalNote(): Promise<JournalNote | null> {
       .from('journal_notes')
       .select('*')
       .order('published_at', { ascending: false })
-      .limit(1)
-      .single();
+      .limit(1);
 
-    if (error || !data) {
+    if (error) {
       return MOCK_JOURNAL;
     }
 
-    return data as JournalNote;
+    if (!data || data.length === 0) {
+      return null;
+    }
+
+    return data[0] as JournalNote;
   } catch {
     return MOCK_JOURNAL;
   }
@@ -231,11 +234,11 @@ export async function getAllJournalNotes(): Promise<JournalNote[]> {
       .select('*')
       .order('published_at', { ascending: false });
 
-    if (error || !data) {
+    if (error) {
       return [MOCK_JOURNAL];
     }
 
-    return data as JournalNote[];
+    return (data || []) as JournalNote[];
   } catch {
     return [MOCK_JOURNAL];
   }
@@ -252,13 +255,13 @@ export async function getJournalNoteById(id: string): Promise<JournalNote | null
       .from('journal_notes')
       .select('*')
       .eq('id', id)
-      .single();
+      .limit(1);
 
-    if (error || !data) {
+    if (error || !data || data.length === 0) {
       return MOCK_JOURNAL.id === id ? MOCK_JOURNAL : null;
     }
 
-    return data as JournalNote;
+    return data[0] as JournalNote;
   } catch {
     return MOCK_JOURNAL.id === id ? MOCK_JOURNAL : null;
   }

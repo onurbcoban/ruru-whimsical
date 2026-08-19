@@ -40,7 +40,6 @@ export default async function AdminSocialPage() {
 
       <SocialForm />
 
-      {/* 1. INSTAGRAM PAYLAŞIMLARI */}
       <div
         style={{
           background: 'var(--bg-surface)',
@@ -151,7 +150,6 @@ export default async function AdminSocialPage() {
         )}
       </div>
 
-      {/* 2. TIKTOK VİDEOLARI */}
       <div
         style={{
           background: 'var(--bg-surface)',

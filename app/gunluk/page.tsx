@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getLatestJournalNote } from '@/lib/supabase/queries';
-import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
 import { JsonLd } from '@/components/seo/JsonLd';
 
 export const metadata: Metadata = {
@@ -43,51 +44,8 @@ export default async function JournalPage() {
   return (
     <main className="container-custom" style={{ padding: '24px 24px 100px' }}>
       {blogJsonLd && <JsonLd data={blogJsonLd} />}
-      {/* Top Header */}
-      <header
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingBottom: '20px',
-          borderBottom: '1.5px dashed var(--border-stitch)',
-          marginBottom: '56px',
-        }}
-      >
-        <Link
-          href="/"
-          style={{
-            textDecoration: 'none',
-            color: 'var(--text-main)',
-            fontSize: '14px',
-            fontWeight: 600,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
-          &larr; atölyeye dön
-        </Link>
+      <Navbar />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <ThemeToggle />
-          <Link
-            href="/"
-            className="font-editorial"
-            style={{
-              fontSize: '20px',
-              fontStyle: 'italic',
-              fontWeight: 600,
-              textDecoration: 'none',
-              color: 'inherit',
-            }}
-          >
-            rürü whimsical
-          </Link>
-        </div>
-      </header>
-
-      {/* Journal Header Hero */}
       <div style={{ maxWidth: '820px', margin: '0 auto 64px', textAlign: 'center' }}>
         <span className="font-hand" style={{ fontSize: '26px', color: 'var(--accent-terracotta)', display: 'block', marginBottom: '8px' }}>
           rümeysa&apos;nın dikiş notları
@@ -100,7 +58,6 @@ export default async function JournalPage() {
         </p>
       </div>
 
-      {/* Journal Feed */}
       <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '64px' }}>
         {latestJournal && (
           <article
@@ -208,6 +165,8 @@ export default async function JournalPage() {
           </article>
         )}
       </div>
+
+      <Footer />
     </main>
   );
 }

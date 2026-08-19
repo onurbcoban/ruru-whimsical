@@ -302,7 +302,6 @@ export default async function AdminDashboardPage() {
         </div>
       )}
 
-      {/* Sosyal Medya Vitrini Bölümü */}
       <div
         style={{
           background: 'var(--bg-surface)',

@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getPieceBySlug } from '@/lib/supabase/queries';
 import { getShopierProducts } from '@/lib/shopier';
-import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { Navbar } from '@/components/layout/Navbar';
+import { Footer } from '@/components/layout/Footer';
 import { PieceGallery } from '@/components/showcase/PieceGallery';
 import { JsonLd } from '@/components/seo/JsonLd';
 
@@ -61,7 +62,6 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
     notFound();
   }
 
-  // Shopier anlık fiyat/stok eşleştirmesi (Yalnızca satıştaki giysiler için)
   let livePrice = piece.price;
   let liveStock = 1;
   let inStock = true;
@@ -127,48 +127,7 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
   return (
     <main className="container-custom" style={{ padding: '24px 24px 100px' }}>
       <JsonLd data={productJsonLd} />
-      <header
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingBottom: '20px',
-          borderBottom: '1.5px dashed var(--border-stitch)',
-          marginBottom: '48px',
-        }}
-      >
-        <Link
-          href="/"
-          style={{
-            textDecoration: 'none',
-            color: 'var(--text-main)',
-            fontSize: '14px',
-            fontWeight: 600,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
-          &larr; atölyeye dön
-        </Link>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <ThemeToggle />
-          <Link
-            href="/"
-            className="font-editorial"
-            style={{
-              fontSize: '20px',
-              fontStyle: 'italic',
-              fontWeight: 600,
-              textDecoration: 'none',
-              color: 'inherit',
-            }}
-          >
-            rürü whimsical
-          </Link>
-        </div>
-      </header>
+      <Navbar />
 
       <div
         style={{
@@ -178,7 +137,6 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
           alignItems: 'start',
         }}
       >
-        {/* SOL: Büyüteçli Galeri */}
         <div>
           <PieceGallery
             mainImage={piece.main_image_url}
@@ -189,7 +147,6 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
           />
         </div>
 
-        {/* SAĞ: Bilgi ve Detaylar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
           <div>
             <span
@@ -218,7 +175,6 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
               {piece.title}
             </h1>
 
-            {/* Fiyat & Satın Al */}
             {piece.is_shopier_product && !isArchive && (
               <div
                 style={{
@@ -273,7 +229,6 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
             )}
           </div>
 
-          {/* Beden & Kalıp Ölçü Rehberi */}
           {hasSizeInfo && (
             <div
               style={{
@@ -307,7 +262,6 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
             </div>
           )}
 
-          {/* Hikaye */}
           <div>
             <span className="font-hand" style={{ fontSize: '22px', color: 'var(--accent-terracotta)', display: 'block', marginBottom: '8px' }}>
               {isFreeWork ? 'çalışmanın ardındaki ilham' : 'kumaşın ve dikişin hikayesi'}
@@ -317,7 +271,6 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
             </p>
           </div>
 
-          {/* Zanaat Özellikleri */}
           {hasCraftDetails && (
             <div
               style={{
@@ -347,7 +300,6 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
             </div>
           )}
 
-          {/* İmza */}
           <div style={{ borderTop: '1.5px dashed var(--border-warm)', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="font-hand" style={{ fontSize: '20px', color: 'var(--accent-terracotta)' }}>
               {isFreeWork ? 'rümeysa • atölye serbest denemesi' : 'rümeysa • atölyede elde dikildi'}
@@ -367,6 +319,8 @@ export default async function PieceDetailPage({ params }: PieceDetailPageProps) 
           </div>
         </div>
       </div>
+
+      <Footer />
     </main>
   );
 }

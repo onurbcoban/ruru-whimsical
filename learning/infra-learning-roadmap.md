@@ -21,7 +21,7 @@ Bu doküman, bir web uygulamasının (Next.js + PostgreSQL + Nginx + S3) sıfır
 ```
 [ Faz 1: Docker & Compose ] ──► [ Faz 2: PostgreSQL & SQL ] ──► [ Faz 3: Nginx Reverse Proxy ]
                                                                              │
-[ Faz 5: Production VPS & Ops ] ◄── [ Faz 4: AWS S3 & Nesne Depolama ] ◄─────┘
+[ Faz 6: Production VPS & Ops ] ◄── [ Faz 5: CI/CD & GHCR ] ◄─── [ Faz 4: Cloudflare R2 / S3 ]
 ```
 
 ---
@@ -128,35 +128,69 @@ Bu doküman, bir web uygulamasının (Next.js + PostgreSQL + Nginx + S3) sıfır
 
 ---
 
-### 🚀 Faz 5: Production VPS, Linux Yönetimi, CI/CD & SSL
+### 🚀 Faz 5: CI/CD Pipeline, Otomasyon & Container Registry (GHCR)
 
-> **Amaç:** Yerelde çalışan sistemi gerçek bir Linux sunucusuna taşımak, GitHub Actions ile CI/CD pipeline kurup GitHub Container Registry (GHCR) üzerinden imajları otomatik VPS'e deploy etmek, domain bağlamak, SSL kurmak ve canlıda tutmayı (ops) öğrenmek.
+> **Amaç:** Kod VPS'te değil, GitHub Actions üzerinde güvenli ve hızlı şekilde derlenir. Üretilen Docker imajı GitHub Container Registry'ye (`ghcr.io`) yüklenir.
 
 #### 1. Temel Kavramlar (Neyi Anlamalısın?)
-- **Linux Temelleri:** Ubuntu/Debian, SSH anahtarlarıyla şifresiz güvenli giriş, dosya izinleri (`chmod`, `chown`).
-- **Güvenlik Duvarı (UFW):** Sadece 22 (SSH), 80 (HTTP) ve 443 (HTTPS) portlarını açıp veritabanı portunu (5432) dış dünyaya kapatmak.
-- **CI/CD & Container Registry (GHCR):** Kod VPS'te değil, GitHub Actions üzerinde build edilir. Üretilen Docker imajı GitHub Container Registry'ye (`ghcr.io`) yüklenir. VPS kaynak harcamaz, hızlıca yeni imajı çeker.
-- **DNS Yönetimi:** A kaydı (Domain → VPS IP adresi eşleşmesi).
-- **Let's Encrypt & Certbot:** Otomatik, ücretsiz SSL/TLS sertifikası alma ve ACME challenge protokolü.
-- **Sistem Sağlığı & Bakım:**
-  - `htop` ile CPU ve RAM takibi.
-  - `docker compose logs -f` ile log izleme.
-  - `cron` job ile her gece otomatik veritabanı yedeği alıp saklama.
-  - Swap Memory: RAM dolup sunucu kilitlenmesin diye diskten sanal bellek açma.
+- **GitHub Actions Runner:** Ubuntu sanal makinede otomatik çalışan iş akışı (`.github/workflows/deploy.yml`).
+- **BuildKit & Docker Buildx:** Multi-stage derlemeyi hızlandıran ve katman önbelleği oluşturan motor.
+- **GitHub Container Registry (GHCR):** `ghcr.io` üzerinde özel Docker paket barındırma.
+- **Dala Duyarlı Etiketleme (Branch-aware Tagging):** 
+  - `main` dalı -> `:latest` ve `:sha`
+  - Yan dallar (`infra/vps-docker`) -> `:branch-name` ve `:sha` (Canlıdaki `:latest` asla kaza ile ezilmez).
+- **GitHub Actions Cache (`type=gha`):** `node_modules` ve Next.js build katmanlarını önbelleğe alıp build süresini dakikalardan saniyelere düşürme.
 
 #### 2. Pratik Görevler (Hands-on)
-1. Hetzner veya DigitalOcean'dan bir Linux VPS başlatmak.
-2. SSH ile bağlanıp temel güncellemeleri, güvenlik duvarını (UFW) ve Docker'ı kurmak.
-3. Alan adının DNS A kaydını VPS IP'sine yönlendirmek.
-4. `.github/workflows/deploy.yml` dosyasını oluşturup GitHub Actions ile her `git push`'ta Docker imajını GHCR'a push'lamak.
-5. GitHub Actions'tan VPS'e SSH ile bağlanıp `docker compose pull && docker compose up -d` komutlarını tetikleyen deployment pipeline'ını bağlamak.
-6. Certbot ile Let's Encrypt SSL sertifikası üretip Nginx konfigürasyonuna 443 HTTPS bloğu eklemek.
-7. Otomatik yedekleme betiği (`backup.sh`) yazıp crontab'a eklemek.
+1. `.github/workflows/deploy.yml` pipeline dosyasını oluşturmak.
+2. `main` ve feature branch'leri için dala duyarlı etiketleme kurallarını yapılandırmak.
+3. GitHub Packages yetkilerini (`read:packages`, `write:packages`) tanımlamak.
+4. GitHub Actions ile derlenen imajı GHCR'a push'lamak.
+5. İmajı yerel makineye `docker pull` ile çekerek doğrulamak.
+
+#### 3. Önerilen Kaynaklar (Okuma & İzleme)
+- **Video:** [GitHub Actions CI/CD to VPS with Docker - TechWorld with Nana](https://www.youtube.com/watch?v=R8_veQiYBjI)
+- **Yazı:** [Publishing and managing Docker images with GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
+
+---
+
+### 🛡️ Faz 6: Production VPS, Linux Güvenlik Sıkılaştırma, SSL & Otomatik Operasyonlar
+
+> **Amaç:** Yerelde çalışan sistemi gerçek bir Linux sunucusuna (VPS) taşımak, domain ve Let's Encrypt SSL sertifikası bağlamak, GitHub Actions'tan sunucuya tam otomatik Continuous Deployment (CD) kurmak ve otomatik yedekleme (Disaster Recovery) ile sistemi canlıda tutmak.
+
+#### 1. Temel Kavramlar (Neyi Anlamalısın?)
+- **Linux Temelleri & SSH Hardening:**
+  - Ubuntu 24.04 LTS sunucuya SSH anahtarıyla şifresiz giriş (`~/.ssh/id_ed25519`).
+  - Root şifreli girişi kapatmak (`PasswordAuthentication no`), brute-force saldırılarını engellemek.
+- **Güvenlik Duvarı (UFW):**
+  - Sadece 22 (SSH), 80 (HTTP) ve 443 (HTTPS) portlarını açmak.
+  - Veritabanı portunu (5432) dış dünyaya tamamen kapatmak; PostgreSQL sadece Docker dahili ağı üzerinden erişilebilir kalmalı.
+- **Swap Memory (Sanal Bellek):**
+  - 1-2 GB RAM'li ekonomik VPS'lerde bellek taşmasında Linux OOM (Out-Of-Memory) killer'ın servisleri durdurmasını engellemek için diskten 2 GB sanal RAM oluşturmak.
+- **DNS Yönetimi:**
+  - Alan adının Apex (`@`) ve `www` A kayıtlarını VPS'in statik IP adresine yönlendirmek.
+- **Let's Encrypt & Certbot (Otomatik SSL/TLS):**
+  - Nginx'in 443 portunda HTTPS dinlemesi ve 80 portundaki trafiği otomatik 301 ile HTTPS'e yönlendirmesi.
+  - Certbot ACME challenge protokolü ile ücretsiz 90 günlük SSL üretimi ve otomatik yenileme (auto-renew cron).
+- **Otomatik Dağıtım (Continuous Deployment - CD):**
+  - `git push origin main` yapıldığında GitHub Actions'ın VPS'e SSH atarak `docker compose pull && docker compose up -d` komutunu tetiklemesi.
+- **Felaket Kurtarma & Yedekleme (Disaster Recovery):**
+  - `backup.sh` betiği: Her gece `pg_dump` ile SQL dökümü alıp sıkıştırmak (`.sql.gz`).
+  - Yedeği Cloudflare R2'da `ruru-backups` bucket'ına yüklemek.
+  - Linux `cron` servisi ile tam otomatik çalıştırmak.
+
+#### 2. Pratik Görevler (Hands-on)
+1. Hetzner / DigitalOcean üzerinden Ubuntu Linux VPS açmak ve SSH anahtarı tanımlamak.
+2. UFW güvenlik duvarını yapılandırmak ve Swap belleği aktifleştirmek.
+3. Sunucuya Docker & Docker Compose kurmak.
+4. Alan adı DNS kayıtlarını VPS IP'sine yönlendirmek.
+5. Certbot ile Let's Encrypt SSL sertifikasını alıp `nginx/ssl.conf` ile HTTPS'e geçmek.
+6. GitHub Actions'a `VPS_SSH_KEY`, `VPS_IP`, `VPS_USER` secret'larını ekleyip otomatik CD adımını bağlamak.
+7. `backup.sh` yazıp crontab'a günlük otomatik yedek eklemek.
 
 #### 3. Önerilen Kaynaklar (Okuma & İzleme)
 - **Video:** [Linux for Beginners - freeCodeCamp](https://www.youtube.com/watch?v=sWbGOqEcRqI)
-- **Video:** [GitHub Actions CI/CD to VPS with Docker - TechWorld with Nana](https://www.youtube.com/watch?v=R8_veQiYBjI)
-- **Yazı:** [Publishing and managing Docker images with GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
+- **Yazı:** [DigitalOcean Community: Initial Server Setup with Ubuntu 22.04 / 24.04](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-22-04)
 - **Yazı:** [DigitalOcean Community: How to Secure Nginx with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-22-04)
 
 ---

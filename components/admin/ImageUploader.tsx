@@ -43,6 +43,36 @@ export function ImageUploader({
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
+      try {
+        const presignedRes = await fetch('/api/upload/presigned', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename: file.name,
+            contentType: file.type || 'image/jpeg',
+            folder: bucketName,
+          }),
+        });
+
+        if (presignedRes.ok) {
+          const { uploadUrl, publicUrl } = await presignedRes.json();
+          const uploadRes = await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': file.type || 'image/jpeg',
+            },
+            body: file,
+          });
+
+          if (uploadRes.ok) {
+            uploadedUrls.push(publicUrl);
+            continue;
+          }
+        }
+      } catch (s3Err) {
+        console.warn('S3 / R2 upload failed, falling back:', s3Err);
+      }
+
       if (isSupabaseConfigured) {
         try {
           const fileExt = file.name.split('.').pop();

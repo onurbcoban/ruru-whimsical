@@ -67,18 +67,16 @@ export async function getShopierProducts(): Promise<ShopierProduct[]> {
           'Content-Type': 'application/json',
         },
         next: {
-          revalidate: 300, // 5 dakikalık ISR önbelleği
+          revalidate: 300,
         },
       });
 
       if (!response.ok) {
-        // Canlıda hata olursa veya token geçersizse asla sahte veri dönme
         return [];
       }
 
       const data = await response.json();
       
-      // Shopier API yanıtını arayüz modeline dönüştürme (Normalization)
       if (Array.isArray(data?.data)) {
         return data.data.map((item: any) => ({
           id: String(item.id),

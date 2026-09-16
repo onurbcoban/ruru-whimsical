@@ -128,13 +128,14 @@ Bu doküman, bir web uygulamasının (Next.js + PostgreSQL + Nginx + S3) sıfır
 
 ---
 
-### 🚀 Faz 5: Production VPS, Linux Yönetimi, Domain & SSL
+### 🚀 Faz 5: Production VPS, Linux Yönetimi, CI/CD & SSL
 
-> **Amaç:** Yerelde çalışan sistemi gerçek bir Linux sunucusuna taşımak, domain bağlamak, SSL kurmak ve canlıda tutmayı (maintenance) öğrenmek.
+> **Amaç:** Yerelde çalışan sistemi gerçek bir Linux sunucusuna taşımak, GitHub Actions ile CI/CD pipeline kurup GitHub Container Registry (GHCR) üzerinden imajları otomatik VPS'e deploy etmek, domain bağlamak, SSL kurmak ve canlıda tutmayı (ops) öğrenmek.
 
 #### 1. Temel Kavramlar (Neyi Anlamalısın?)
 - **Linux Temelleri:** Ubuntu/Debian, SSH anahtarlarıyla şifresiz güvenli giriş, dosya izinleri (`chmod`, `chown`).
 - **Güvenlik Duvarı (UFW):** Sadece 22 (SSH), 80 (HTTP) ve 443 (HTTPS) portlarını açıp veritabanı portunu (5432) dış dünyaya kapatmak.
+- **CI/CD & Container Registry (GHCR):** Kod VPS'te değil, GitHub Actions üzerinde build edilir. Üretilen Docker imajı GitHub Container Registry'ye (`ghcr.io`) yüklenir. VPS kaynak harcamaz, hızlıca yeni imajı çeker.
 - **DNS Yönetimi:** A kaydı (Domain → VPS IP adresi eşleşmesi).
 - **Let's Encrypt & Certbot:** Otomatik, ücretsiz SSL/TLS sertifikası alma ve ACME challenge protokolü.
 - **Sistem Sağlığı & Bakım:**
@@ -145,16 +146,17 @@ Bu doküman, bir web uygulamasının (Next.js + PostgreSQL + Nginx + S3) sıfır
 
 #### 2. Pratik Görevler (Hands-on)
 1. Hetzner veya DigitalOcean'dan bir Linux VPS başlatmak.
-2. SSH ile bağlanıp temel güncellemeleri ve Docker'ı kurmak.
+2. SSH ile bağlanıp temel güncellemeleri, güvenlik duvarını (UFW) ve Docker'ı kurmak.
 3. Alan adının DNS A kaydını VPS IP'sine yönlendirmek.
-4. Git reposunu sunucuya çekip `.env` dosyasını doldurmak.
-5. Certbot ile Let's Encrypt SSL sertifikası üretip Nginx konfigürasyonuna 443 HTTPS bloğu eklemek.
-6. Otomatik yedekleme betiği (`backup.sh`) yazıp crontab'a eklemek.
+4. `.github/workflows/deploy.yml` dosyasını oluşturup GitHub Actions ile her `git push`'ta Docker imajını GHCR'a push'lamak.
+5. GitHub Actions'tan VPS'e SSH ile bağlanıp `docker compose pull && docker compose up -d` komutlarını tetikleyen deployment pipeline'ını bağlamak.
+6. Certbot ile Let's Encrypt SSL sertifikası üretip Nginx konfigürasyonuna 443 HTTPS bloğu eklemek.
+7. Otomatik yedekleme betiği (`backup.sh`) yazıp crontab'a eklemek.
 
 #### 3. Önerilen Kaynaklar (Okuma & İzleme)
 - **Video:** [Linux for Beginners - freeCodeCamp](https://www.youtube.com/watch?v=sWbGOqEcRqI)
-- **Video:** [How to deploy a Docker application on a VPS (Full walkthrough)](https://www.youtube.com/results?search_query=deploy+docker+compose+vps+nginx+ssl)
-- **Yazı:** [DigitalOcean Community: Initial Server Setup with Ubuntu](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-22-04)
+- **Video:** [GitHub Actions CI/CD to VPS with Docker - TechWorld with Nana](https://www.youtube.com/watch?v=R8_veQiYBjI)
+- **Yazı:** [Publishing and managing Docker images with GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
 - **Yazı:** [DigitalOcean Community: How to Secure Nginx with Let's Encrypt](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-22-04)
 
 ---

@@ -14,7 +14,6 @@ export async function getUnifiedShowcase(): Promise<{
   journals: JournalNote[];
   socialEmbeds: SocialEmbed[];
 }> {
-  // Paralel veri çekme (Zero latency overhead)
   const [pieces, shopierProducts, journals, latestJournal, socialEmbeds] = await Promise.all([
     getPieces(),
     getShopierProducts(),
@@ -23,7 +22,6 @@ export async function getUnifiedShowcase(): Promise<{
     getSocialEmbeds(),
   ]);
 
-  // Shopier SKU eşleştirmesi ve dinamik stok/fiyat senkronizasyonu
   const enrichedPieces: UnifiedPiece[] = pieces.map((piece) => {
     if (piece.is_shopier_product && piece.shopier_sku) {
       const matchedProduct = shopierProducts.find(

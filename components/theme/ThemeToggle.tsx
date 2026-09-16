@@ -56,7 +56,6 @@ export function ThemeToggle() {
       }}
     >
       {isDark ? (
-        // Güneş İkonu (Açık moda geçmek için)
         <svg
           style={{ width: '20px', height: '20px' }}
           viewBox="0 0 24 24"
@@ -77,7 +76,6 @@ export function ThemeToggle() {
           <path d="m19.07 4.93-1.41 1.41" />
         </svg>
       ) : (
-        // Hilal Ay İkonu (Koyu moda geçmek için)
         <svg
           style={{ width: '19px', height: '19px' }}
           viewBox="0 0 24 24"

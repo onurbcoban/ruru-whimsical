@@ -38,3 +38,5 @@ next-env.d.ts
 one-step-back/
 STATE.md
 state.md
+scratch/
+backup.sql

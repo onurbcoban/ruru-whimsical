@@ -22,6 +22,8 @@ const caveat = Caveat({
   display: 'swap',
 });
 
+export const dynamic = 'force-dynamic';
+
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#FBF9F5' },

@@ -21,7 +21,7 @@ Bu doküman, bir web uygulamasının (Next.js + PostgreSQL + Nginx + S3) sıfır
 ```
 [ Faz 1: Docker & Compose ] ──► [ Faz 2: PostgreSQL & SQL ] ──► [ Faz 3: Nginx Reverse Proxy ]
                                                                              │
-[ Faz 6: Production VPS & Ops ] ◄── [ Faz 5: CI/CD & GHCR ] ◄─── [ Faz 4: Cloudflare R2 / S3 ]
+[ Faz 7: Production VPS & Ops ] ◄── [ Faz 6: Portainer & Madge ] ◄── [ Faz 5: CI/CD & GHCR ] ◄─── [ Faz 4: Cloudflare R2 / S3 ]
 ```
 
 ---
@@ -154,7 +154,32 @@ Bu doküman, bir web uygulamasının (Next.js + PostgreSQL + Nginx + S3) sıfır
 
 ---
 
-### 🛡️ Faz 6: Production VPS, Linux Güvenlik Sıkılaştırma, SSL & Otomatik Operasyonlar
+### 📊 Faz 6: Mimari Görselleştirme, Bağımlılık Analizi & Gözlemlenebilirlik (Portainer & Madge)
+
+> **Amaç:** Kurulan altyapıyı ve yazılım bağımlılıklarını soyut komut satırından çıkarıp görselleştirmek; Docker ağını, konteyner kaynaklarını ve TypeScript modül ağacını canlı araçlarla inceleyerek tam mimari hakimiyet kazanmak.
+
+#### 1. Temel Kavramlar (Neyi Anlamalısın?)
+- **Docker Socket (`/var/run/docker.sock`):** Docker istemcisi ile Docker Daemon arasındaki iletişim kanalı. Portainer'ın çalışan konteynerleri okumak ve yönetmek için neden bu sokete erişim istediği.
+- **Konteyner Gözlemlenebilirliği (Observability):** Konteynerlerin anlık CPU, RAM, ağ (I/O) tüketimi, canlı logları ve restart politikaları.
+- **Sanal Ağ Köprüleri (Docker Bridge Networks):** `ruru_nginx`, `ruru_app` ve `ruru_db` servislerinin iç IP'lerinin (`172.x.x.x`) ve birbirleriyle kurduğu sanal köprünün görsel haritası.
+- **Modül Bağımlılık Grafiği (AST / Import Graph):** TypeScript kodunda hangi dosyanın kimi çağırdığı, bileşenlerin katman sınırları.
+- **Döngüsel Bağımlılık (Circular Dependency):** A modülünün B'yi, B modülünün de doğrudan veya dolaylı olarak A'yı import etmesi durumu; Next.js SSR ve derleme anında bellek sızıntısına veya "undefined import" hatalarına yol açan bu zincirlerin tespiti.
+
+#### 2. Pratik Görevler (Hands-on)
+1. **Portainer Kurulumu:** Docker üzerinde `portainer/portainer-ce` konteynerini 9000 portu ile ayağa kaldırmak.
+2. **Konteyner ve Ağ Analizi:** Portainer arayüzünden (`http://localhost:9000`) projemizin konteynerlerini, dahili bridge ağını ve `postgres_data` volume'ünü incelemek.
+3. **Madge Kurulumu ve Analizi:** `npx madge` ile Next.js projemizin modül bağımlılıklarını taramak.
+4. **Döngüsel Bağımlılık Taraması:** Projede circular dependency olup olmadığını komutla denetlemek (`npx madge --circular`).
+5. **Görsel Harita Çıkarımı:** Madge veya Graphviz kullanarak bağımlılık haritasını görsel bir çıktıya dönüştürmek.
+
+#### 3. Önerilen Kaynaklar (Okuma & İzleme)
+- **Video:** [Portainer Explained in 5 Minutes - TechWorld with Nana](https://www.youtube.com/watch?v=l_8_J5g336E)
+- **Yazı:** [Madge GitHub Documentation: Visualizing Module Dependencies](https://github.com/pahen/madge)
+- **Arama Terimleri:** `portainer docker compose visualization`, `madge circular dependency nextjs`
+
+---
+
+### 🛡️ Faz 7: Production VPS, Linux Güvenlik Sıkılaştırma, SSL & Otomatik Operasyonlar
 
 > **Amaç:** Yerelde çalışan sistemi gerçek bir Linux sunucusuna (VPS) taşımak, domain ve Let's Encrypt SSL sertifikası bağlamak, GitHub Actions'tan sunucuya tam otomatik Continuous Deployment (CD) kurmak ve otomatik yedekleme (Disaster Recovery) ile sistemi canlıda tutmak.
 

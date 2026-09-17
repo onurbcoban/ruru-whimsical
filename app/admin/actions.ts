@@ -6,6 +6,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { getExpectedAdminToken, verifyAdminSession } from '@/lib/auth';
 import { fetchSocialMetadata } from '@/lib/social-oembed';
 import { setInMemoryHeroSettings } from '@/lib/supabase/queries';
+import sql from '@/lib/db';
 
 function generateSlug(text: string): string {
   const trMap: { [key: string]: string } = {
@@ -23,6 +24,7 @@ function generateSlug(text: string): string {
 }
 
 function isLiveSupabaseConfigured(): boolean {
+  if (process.env.DATABASE_URL) return false;
   return !!(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
     !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('demo-project') &&
@@ -105,9 +107,33 @@ export async function createPieceAction(formData: FormData) {
     craft_details = [];
   }
 
-  const slug = generateSlug(title);
+  let slug = generateSlug(title);
+  if (!slug) slug = 'parca-' + Date.now();
 
-  if (isLiveSupabaseConfigured()) {
+  if (process.env.DATABASE_URL) {
+    try {
+      const existing = await sql`SELECT id FROM public.pieces WHERE slug = ${slug} LIMIT 1`;
+      if (existing.length > 0) {
+        slug = `${slug}-${Date.now().toString().slice(-4)}`;
+      }
+
+      await sql`
+        INSERT INTO public.pieces (
+          title, slug, category, story, main_image_url, gallery_urls,
+          craft_details, size_info, measurements, showcase_section,
+          is_shopier_product, shopier_sku, shopier_url, price,
+          is_archived, order_index
+        ) VALUES (
+          ${title}, ${slug}, ${category}, ${story}, ${main_image_url}, ${gallery_urls},
+          ${JSON.stringify(craft_details)}::jsonb, ${size_info}, ${measurements}, ${showcase_section},
+          ${is_shopier}, ${shopier_sku}, ${shopier_url}, ${price},
+          ${showcase_section === 'archive'}, 1
+        )
+      `;
+    } catch (err) {
+      console.error('Database piece insert exception (PostgreSQL):', err);
+    }
+  } else if (isLiveSupabaseConfigured()) {
     try {
       const supabase = await createServerClient();
       const { error } = await supabase.from('pieces').insert([
@@ -177,7 +203,31 @@ export async function updatePieceAction(id: string, formData: FormData) {
     craft_details = [];
   }
 
-  if (isLiveSupabaseConfigured()) {
+  if (process.env.DATABASE_URL) {
+    try {
+      await sql`
+        UPDATE public.pieces SET
+          title = ${title},
+          category = ${category},
+          story = ${story},
+          main_image_url = ${main_image_url},
+          gallery_urls = ${gallery_urls},
+          craft_details = ${JSON.stringify(craft_details)}::jsonb,
+          size_info = ${size_info},
+          measurements = ${measurements},
+          showcase_section = ${showcase_section},
+          is_shopier_product = ${is_shopier},
+          shopier_sku = ${shopier_sku},
+          shopier_url = ${shopier_url},
+          price = ${price},
+          is_archived = ${is_archived},
+          updated_at = NOW()
+        WHERE id = ${id}
+      `;
+    } catch (err) {
+      console.error('Database piece update exception (PostgreSQL):', err);
+    }
+  } else if (isLiveSupabaseConfigured()) {
     try {
       const supabase = await createServerClient();
       const { error } = await supabase
@@ -218,7 +268,13 @@ export async function updatePieceAction(id: string, formData: FormData) {
 export async function deletePieceAction(id: string) {
   await requireAdminAuth();
 
-  if (isLiveSupabaseConfigured()) {
+  if (process.env.DATABASE_URL) {
+    try {
+      await sql`DELETE FROM public.pieces WHERE id = ${id}`;
+    } catch (err) {
+      console.error('Database piece delete exception (PostgreSQL):', err);
+    }
+  } else if (isLiveSupabaseConfigured()) {
     try {
       const supabase = await createServerClient();
       await supabase.from('pieces').delete().eq('id', id);
@@ -236,7 +292,17 @@ export async function deletePieceAction(id: string) {
 export async function togglePieceArchiveAction(id: string, currentStatus: boolean) {
   await requireAdminAuth();
 
-  if (isLiveSupabaseConfigured()) {
+  if (process.env.DATABASE_URL) {
+    try {
+      await sql`
+        UPDATE public.pieces
+        SET is_archived = ${!currentStatus}, updated_at = NOW()
+        WHERE id = ${id}
+      `;
+    } catch (err) {
+      console.error('Database piece toggle archive exception (PostgreSQL):', err);
+    }
+  } else if (isLiveSupabaseConfigured()) {
     try {
       const supabase = await createServerClient();
       await supabase
@@ -268,7 +334,19 @@ export async function saveJournalNoteAction(formData: FormData) {
     photo_urls = [];
   }
 
-  if (isLiveSupabaseConfigured()) {
+  if (process.env.DATABASE_URL) {
+    try {
+      await sql`
+        INSERT INTO public.journal_notes (
+          title, quote, content, photo_urls, is_published, published_at
+        ) VALUES (
+          ${title}, ${quote}, ${content}, ${photo_urls}, true, NOW()
+        )
+      `;
+    } catch (err) {
+      console.error('Database journal insert exception (PostgreSQL):', err);
+    }
+  } else if (isLiveSupabaseConfigured()) {
     try {
       const supabase = await createServerClient();
       await supabase.from('journal_notes').insert([
@@ -307,7 +385,20 @@ export async function updateJournalNoteAction(id: string, formData: FormData) {
     photo_urls = [];
   }
 
-  if (isLiveSupabaseConfigured()) {
+  if (process.env.DATABASE_URL) {
+    try {
+      await sql`
+        UPDATE public.journal_notes SET
+          title = ${title},
+          quote = ${quote},
+          content = ${content},
+          photo_urls = ${photo_urls}
+        WHERE id = ${id}
+      `;
+    } catch (err) {
+      console.error('Database journal update exception (PostgreSQL):', err);
+    }
+  } else if (isLiveSupabaseConfigured()) {
     try {
       const supabase = await createServerClient();
       await supabase
@@ -333,7 +424,13 @@ export async function updateJournalNoteAction(id: string, formData: FormData) {
 export async function deleteJournalNoteAction(id: string) {
   await requireAdminAuth();
 
-  if (isLiveSupabaseConfigured()) {
+  if (process.env.DATABASE_URL) {
+    try {
+      await sql`DELETE FROM public.journal_notes WHERE id = ${id}`;
+    } catch (err) {
+      console.error('Database journal delete exception (PostgreSQL):', err);
+    }
+  } else if (isLiveSupabaseConfigured()) {
     try {
       const supabase = await createServerClient();
       await supabase.from('journal_notes').delete().eq('id', id);
@@ -360,7 +457,19 @@ export async function createSocialEmbedAction(formData: FormData) {
 
   const { platform, thumbnail_url, caption } = await fetchSocialMetadata(url, manualCaption);
 
-  if (isLiveSupabaseConfigured()) {
+  if (process.env.DATABASE_URL) {
+    try {
+      await sql`
+        INSERT INTO public.social_embeds (
+          platform, url, caption, thumbnail_url, order_index
+        ) VALUES (
+          ${platform}, ${url}, ${caption}, ${thumbnail_url}, 1
+        )
+      `;
+    } catch (err) {
+      console.error('Database social insert exception (PostgreSQL):', err);
+    }
+  } else if (isLiveSupabaseConfigured()) {
     try {
       const supabase = await createServerClient();
       await supabase.from('social_embeds').insert([
@@ -385,7 +494,13 @@ export async function createSocialEmbedAction(formData: FormData) {
 export async function deleteSocialEmbedAction(id: string) {
   await requireAdminAuth();
 
-  if (isLiveSupabaseConfigured()) {
+  if (process.env.DATABASE_URL) {
+    try {
+      await sql`DELETE FROM public.social_embeds WHERE id = ${id}`;
+    } catch (err) {
+      console.error('Database social delete exception (PostgreSQL):', err);
+    }
+  } else if (isLiveSupabaseConfigured()) {
     try {
       const supabase = await createServerClient();
       await supabase.from('social_embeds').delete().eq('id', id);
@@ -419,7 +534,18 @@ export async function updateHeroSettingsAction(formData: FormData) {
   // Always update in-memory cache immediately
   setInMemoryHeroSettings(heroData);
 
-  if (isLiveSupabaseConfigured()) {
+  if (process.env.DATABASE_URL) {
+    try {
+      await sql`
+        INSERT INTO public.site_settings (key, value, updated_at)
+        VALUES ('hero', ${JSON.stringify(heroData)}::jsonb, NOW())
+        ON CONFLICT (key) DO UPDATE
+        SET value = EXCLUDED.value, updated_at = NOW()
+      `;
+    } catch (err) {
+      console.error('Database hero update exception (PostgreSQL):', err);
+    }
+  } else if (isLiveSupabaseConfigured()) {
     try {
       const supabase = await createServerClient();
       await supabase.from('site_settings').upsert({

@@ -1,5 +1,6 @@
 import { createServerClient } from './server';
 import type { Piece, JournalNote, SocialEmbed } from '@/types/database';
+import sql from '@/lib/db';
 
 const MOCK_PIECES: Piece[] = [
   {
@@ -112,10 +113,45 @@ const MOCK_JOURNAL: JournalNote = {
   created_at: new Date().toISOString(),
 };
 
+function formatPieceRow(row: any): Piece {
+  return {
+    ...row,
+    price: row.price !== null && row.price !== undefined ? Number(row.price) : null,
+    gallery_urls: Array.isArray(row.gallery_urls) ? row.gallery_urls : [],
+    craft_details: typeof row.craft_details === 'string' ? JSON.parse(row.craft_details) : (row.craft_details || []),
+    created_at: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at || ''),
+    updated_at: row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at || ''),
+  };
+}
+
+function formatJournalRow(row: any): JournalNote {
+  return {
+    ...row,
+    photo_urls: Array.isArray(row.photo_urls) ? row.photo_urls : [],
+    published_at: row.published_at instanceof Date ? row.published_at.toISOString() : String(row.published_at || ''),
+    created_at: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at || ''),
+  };
+}
+
+function formatSocialRow(row: any): SocialEmbed {
+  return {
+    ...row,
+    created_at: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at || ''),
+  };
+}
+
 export async function getPieces(): Promise<Piece[]> {
   const isProduction = process.env.NODE_ENV === 'production';
 
   try {
+    if (process.env.DATABASE_URL) {
+      const rows = await sql`
+        SELECT * FROM public.pieces
+        ORDER BY order_index ASC, created_at DESC
+      `;
+      return rows.map(formatPieceRow);
+    }
+
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return isProduction ? [] : MOCK_PIECES;
     }
@@ -143,6 +179,18 @@ export async function getPieceBySlug(slug: string): Promise<Piece | null> {
   const isProduction = process.env.NODE_ENV === 'production';
 
   try {
+    if (process.env.DATABASE_URL) {
+      const rows = await sql`
+        SELECT * FROM public.pieces
+        WHERE slug = ${slug}
+        LIMIT 1
+      `;
+      if (rows.length > 0) {
+        return formatPieceRow(rows[0]);
+      }
+      return null;
+    }
+
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       const found = MOCK_PIECES.find((p) => p.slug === slug);
       return found || (isProduction ? null : MOCK_PIECES[0]);
@@ -171,6 +219,18 @@ export async function getPieceById(id: string): Promise<Piece | null> {
   const isProduction = process.env.NODE_ENV === 'production';
 
   try {
+    if (process.env.DATABASE_URL) {
+      const rows = await sql`
+        SELECT * FROM public.pieces
+        WHERE id = ${id}
+        LIMIT 1
+      `;
+      if (rows.length > 0) {
+        return formatPieceRow(rows[0]);
+      }
+      return null;
+    }
+
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       const found = MOCK_PIECES.find((p) => p.id === id);
       return found || (isProduction ? null : MOCK_PIECES[0]);
@@ -197,6 +257,18 @@ export async function getPieceById(id: string): Promise<Piece | null> {
 
 export async function getLatestJournalNote(): Promise<JournalNote | null> {
   try {
+    if (process.env.DATABASE_URL) {
+      const rows = await sql`
+        SELECT * FROM public.journal_notes
+        ORDER BY published_at DESC
+        LIMIT 1
+      `;
+      if (rows.length > 0) {
+        return formatJournalRow(rows[0]);
+      }
+      return null;
+    }
+
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return MOCK_JOURNAL;
     }
@@ -224,6 +296,14 @@ export async function getLatestJournalNote(): Promise<JournalNote | null> {
 
 export async function getAllJournalNotes(): Promise<JournalNote[]> {
   try {
+    if (process.env.DATABASE_URL) {
+      const rows = await sql`
+        SELECT * FROM public.journal_notes
+        ORDER BY published_at DESC
+      `;
+      return rows.map(formatJournalRow);
+    }
+
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return [MOCK_JOURNAL];
     }
@@ -246,6 +326,18 @@ export async function getAllJournalNotes(): Promise<JournalNote[]> {
 
 export async function getJournalNoteById(id: string): Promise<JournalNote | null> {
   try {
+    if (process.env.DATABASE_URL) {
+      const rows = await sql`
+        SELECT * FROM public.journal_notes
+        WHERE id = ${id}
+        LIMIT 1
+      `;
+      if (rows.length > 0) {
+        return formatJournalRow(rows[0]);
+      }
+      return null;
+    }
+
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return MOCK_JOURNAL.id === id ? MOCK_JOURNAL : null;
     }
@@ -347,6 +439,14 @@ const MOCK_SOCIAL_EMBEDS: SocialEmbed[] = [
 
 export async function getSocialEmbeds(): Promise<SocialEmbed[]> {
   try {
+    if (process.env.DATABASE_URL) {
+      const rows = await sql`
+        SELECT * FROM public.social_embeds
+        ORDER BY created_at DESC
+      `;
+      return rows.map(formatSocialRow);
+    }
+
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return MOCK_SOCIAL_EMBEDS;
     }
@@ -387,6 +487,22 @@ export function setInMemoryHeroSettings(data: typeof DEFAULT_HERO_SETTINGS) {
 
 export async function getHeroSettings() {
   try {
+    if (process.env.DATABASE_URL) {
+      const rows = await sql`
+        SELECT value FROM public.site_settings
+        WHERE key = 'hero'
+        LIMIT 1
+      `;
+      if (rows.length > 0 && rows[0].value) {
+        const val = typeof rows[0].value === 'string' ? JSON.parse(rows[0].value) : rows[0].value;
+        return {
+          ...DEFAULT_HERO_SETTINGS,
+          ...val,
+        };
+      }
+      return inMemoryHeroSettings;
+    }
+
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       return inMemoryHeroSettings;
     }

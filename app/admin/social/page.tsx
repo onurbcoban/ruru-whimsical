@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getSocialEmbeds } from '@/lib/supabase/queries';
+import { getSocialEmbeds } from '@/lib/queries';
 import { deleteSocialEmbedAction } from '@/app/admin/actions';
 import { SocialForm } from '@/components/admin/SocialForm';
 

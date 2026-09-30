@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getAllJournalNotes } from '@/lib/supabase/queries';
+import { getAllJournalNotes } from '@/lib/queries';
 import { deleteJournalNoteAction } from '@/app/admin/actions';
 
 export default async function AdminJournalPage() {

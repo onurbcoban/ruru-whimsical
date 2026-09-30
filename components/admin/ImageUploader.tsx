@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react';
 import Image from 'next/image';
-import { createClient } from '@/lib/supabase/client';
 
 interface ImageUploaderProps {
   label: string;
@@ -35,11 +34,6 @@ export function ImageUploader({
     setUploading(true);
     const uploadedUrls: string[] = [...currentImages];
 
-    const supabase = createClient();
-    const isSupabaseConfigured =
-      process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('demo-project');
-
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
@@ -70,29 +64,7 @@ export function ImageUploader({
           }
         }
       } catch (s3Err) {
-        console.warn('S3 / R2 upload failed, falling back:', s3Err);
-      }
-
-      if (isSupabaseConfigured) {
-        try {
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-          const filePath = `${fileName}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from(bucketName)
-            .upload(filePath, file, { cacheControl: '3600', upsert: false });
-
-          if (!uploadError) {
-            const { data } = supabase.storage.from(bucketName).getPublicUrl(filePath);
-            if (data?.publicUrl) {
-              uploadedUrls.push(data.publicUrl);
-              continue;
-            }
-          }
-        } catch (err) {
-          console.warn('Storage fallback', err);
-        }
+        console.warn('S3 / R2 upload failed, falling back to base64:', s3Err);
       }
 
       const dataUrl = await new Promise<string>((resolve) => {

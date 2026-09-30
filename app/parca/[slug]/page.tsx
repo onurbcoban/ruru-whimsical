@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getPieceBySlug } from '@/lib/supabase/queries';
+import { getPieceBySlug } from '@/lib/queries';
 import { getShopierProducts } from '@/lib/shopier';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';

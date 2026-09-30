@@ -8,7 +8,7 @@ Bu dokuman, ruru whimsical projesinin yazilim, veri, ag, guvenlik ve dagitim (De
 1. [Butuncul Mimari Semasi](#1-butuncul-mimari-semasi)
 2. [Uygulama ve Sunum Katmani (Next.js 16 + React 19)](#2-uygulama-ve-sunum-katmani-nextjs-16--react-19)
 3. [Ters Vekil ve Ag Guvenligi Katmani (Nginx + UFW + SSL)](#3-ters-vekil-ve-ag-guvenligi-katmani-nginx--ufw--ssl)
-4. [Veri Katmani ve Hibrit Veritabani Mimarisi](#4-veri-katmani-ve-hibrit-veritabani-mimarisi)
+4. [Veri Katmani (Self-Hosted PostgreSQL 16)](#4-veri-katmani-self-hosted-postgresql-16)
 5. [Nesne Depolama ve Medya Akisi (Cloudflare R2 Presigned URLs)](#5-nesne-depolama-ve-medya-akisi-cloudflare-r2-presigned-urls)
 6. [CI/CD Dagitim Hatti ve Konteyner Yasam Dongusu](#6-cicd-dagitim-hatti-ve-konteyner-yasam-dongusu)
 7. [Yedekleme ve Felaket Kurtarma (Disaster Recovery)](#7-yedekleme-ve-felaket-kurtarma-disaster-recovery)
@@ -25,7 +25,7 @@ Bu dokuman, ruru whimsical projesinin yazilim, veri, ag, guvenlik ve dagitim (De
                          HTTP/2 (443)   │ HTTPS / TLS 1.3
                                         ▼
 ┌───────────────────────────────────────────────────────────────────────────────┐
-│ AWS EC2 Sunucusu (Ubuntu 24.04 LTS — Elastic IP: 16.170.2.243)                │
+│ AWS EC2 Sunucusu (Ubuntu 24.04 LTS — Elastic IP / VPS Host)                   │
 │ Sistem: 2 GB Swap Bellek (OOM Korumasi) | UFW Guvenlik Duvari                 │
 │ Acik Portlar: 22 (SSH), 80 (HTTP -> 443 301 Redirect), 443 (HTTPS)           │
 │                                                                               │
@@ -64,7 +64,7 @@ Bu dokuman, ruru whimsical projesinin yazilim, veri, ag, guvenlik ve dagitim (De
 ## 2. Uygulama ve Sunum Katmani (Next.js 16 + React 19)
 
 ### 2.1. Standalone Cikti ve Multi-Stage Dockerfile
-Uygulama sunucuya tasinirken agır node_modules klasoru kullanilmaz. `next.config.mjs` icerisinde `output: 'standalone'` aktiftir.
+Uygulama sunucuya tasinirken agir node_modules klasoru kullanilmaz. `next.config.mjs` icerisinde `output: 'standalone'` aktiftir.
 
 `Dockerfile` 3 asamali (multi-stage) insa edilir:
 1. `deps`: `node:22-alpine` uzerinde `package.json` ve `package-lock.json` kopyalanip `npm ci` ile bagimliliklar kurulur.
@@ -72,7 +72,7 @@ Uygulama sunucuya tasinirken agır node_modules klasoru kullanilmaz. `next.confi
 3. `runner`: Minimal Alpine Linux imajina yalnizca standalone ciktisi ve public statik dosyalar kopyalanir. Root yetkisi kaldirilarak `nextjs:nodejs` (UID 1001) kullanicisi atanir. Imaj boyutu: yaklasik 83 MB.
 
 ### 2.2. Sayfa ve Rota Mimarisi
-- RSC (React Server Components): Ana sayfa (`app/page.tsx`), parca detay (`app/parca/[slug]/page.tsx`) ve gunluk (`app/gunluk/page.tsx`) sunucuda derlenir. Istemciye sifir veritabani istemcisi kodu gonderilir.
+- RSC (React Server Components): Ana sayfa (`app/page.tsx`), parca detay (`app/parca/[slug]/page.tsx`) ve gunluk (`app/gunluk/page.tsx`) sunucuda derlenir. Istemciye sifir veritabani baglanti kodu gonderilir.
 - Server Actions: Yonetim islemleri (`app/admin/actions.ts`) dogrudan sunucu aksiyonlariyla yapilir. Islemler sonrasi `revalidatePath` ile onbellek tazelenir.
 - Admin Oturumu: `lib/auth.ts` icinde Web Crypto API tabanli SHA-256 imzali HTTP-only cerez kontrolu yapilir. Yanlis sifre girislerinde bot saldirilarina karsi yapay gecikme calistirilir.
 
@@ -97,29 +97,27 @@ Certbot ile uretilen sertifikalar host uzerinde `/etc/letsencrypt` altinda tutul
 
 ---
 
-## 4. Veri Katmani ve Hibrit Veritabani Mimarisi
-
-Sistem Dual-Stack (Cift Katmanli) calisir:
+## 4. Veri Katmani (Self-Hosted PostgreSQL 16)
 
 ```
-                                 [ actions.ts / queries.ts ]
-                                              │
-                         ┌────────────────────┴────────────────────┐
-                         │ process.env.DATABASE_URL tanimli mi?    │
-                         ▼                                         ▼
-                     [ EVET ]                                  [ HAYIR ]
-              Dogrudan PostgreSQL 16                     Supabase Istemcisi
-              (lib/db.ts - postgres.js)                 (lib/supabase/client.ts)
-                         │                                         │
-                         ▼                                         ▼
-                 AWS EC2 / Docker                         Vercel Canli Ortami
-              (vps.ruruwhimsical.com)                     (ruruwhimsical.com)
+[ Next.js Server Components / Actions ]
+                 │
+                 ▼
+          [ lib/queries.ts ]
+                 │
+                 ▼
+          [ lib/db.ts ] (postgres.js singleton baglanti havuzu)
+                 │ (Docker ic agi: db:5432)
+                 ▼
+       [ ruru_db Konteyneri ] (PostgreSQL 16 Alpine)
+                 │
+                 ▼
+         [ postgres_data ] (Kalici Docker Volume)
 ```
 
-### 4.1. Veritabani Izolasyonu
-- VPS `.env` dosyasinda `NEXT_PUBLIC_SUPABASE_*` anahtarlari bostur. VPS panelinden yapilan ekleme/guncellemeler yalnizca yerel PostgreSQL'e yazilir; Vercel canli sitesine sizmaz.
+### 4.1. Veritabani Baglantisi ve Performans
 - Baglanti Havuzu (`lib/db.ts`): `postgres.js` surucusu global singleton ile calisir, gereksiz baglanti tikanmalarini onler.
-- Kalicilik: Veriler host uzerindeki `postgres_data` Docker volume'unde saklanir.
+- Kalicilik: Veriler host uzerindeki `postgres_data` Docker volume'unde saklanir. Konteyner kapansa veya guncellense dahi veri kaybi yasanmaz.
 
 ### 4.2. Tablo Semasi (`docker/postgres/init.sql`)
 - `public.pieces`: Parcalar ve kiyafetler (UUID, slug, JSONB zanaat detaylari, galeri URL dizisi, Shopier SKU, arsiv durumu).
@@ -151,10 +149,10 @@ Uygulama sunucusunun disk ve RAM tuketimini sifira indirmek icin Direct-to-S3 ya
 ## 6. CI/CD Dagitim Hatti ve Konteyner Yasam Dongusu
 
 GitHub Actions (`.github/workflows/deploy.yml`):
-1. `main` veya `infra/vps-docker` dalina push yapildiginda tetiklenir.
+1. `main` dalina push yapildiginda tetiklenir.
 2. Docker Buildx ve GHA onbellegi ile katmanlar saklanir.
 3. Imajlar GitHub Container Registry (`ghcr.io`) uzerine etiketlenir.
-4. `main` dali icin SSH eylemi ile sunucuda container guncellemesi yapilir:
+4. SSH eylemi ile sunucuda container guncellemesi yapilir:
    ```bash
    docker compose -f docker-compose.prod.yml pull app
    docker compose -f docker-compose.prod.yml up -d --remove-orphans app
@@ -165,7 +163,7 @@ GitHub Actions (`.github/workflows/deploy.yml`):
 ## 7. Yedekleme ve Felaket Kurtarma (Disaster Recovery)
 
 `scripts/backup-r2.sh` betigi:
-1. `docker exec -t ruru_db pg_dump -U ruru_user -d ruru_db | gzip` komutuyla calisir.
+1. `docker exec -t ruru_db pg_dump -U $DB_USER -d $DB_NAME | gzip` komutuyla calisir.
 2. `/var/backups/postgres` dizininde 7 gunluk yerel arsiv tutar.
 3. `@aws-sdk/client-s3` ile Cloudflare R2 `ruru-backups` bucket'ina soguk yedek yukler.
 
@@ -173,7 +171,7 @@ GitHub Actions (`.github/workflows/deploy.yml`):
 
 ## 8. Modul Bagimlilik ve Gozlemlenebilirlik Durumu
 
-- Madge AST Analizi: 53 TypeScript kaynak dosyasi tarandi, 0 circular dependency (dongusel bagimlilik) tespit edildi.
+- Madge AST Analizi: Kaynak kodda 0 circular dependency (dongusel bagimlilik) mevcuttur.
 - Portainer CE: Konteyner CPU/RAM kullanimlari ve sanal ag yapisi Port 9000 uzerinden incelenebilir.
 - Saglik Kontrolu: `/api/health/db` uzerinden Next.js ve PostgreSQL durumu JSON olarak izlenebilir.
 
@@ -199,8 +197,8 @@ Sistemin uzun vadeli bakimi ve tam otonom hale gelmesi icin yapilmasi gereken te
 - Iyilestirme: Traefik veya Nginx upstream yuk dengeleyici ile cift konteyner (blue/green) rolling update yapisi kurulmali.
 
 ### 9.4. Onbellek ve Hiz Siniri Katmani (Redis / Valkey)
-- Mevcut durum: Admin brute-force gecikmesi ve Hero ayarlari process belleginde tutulur. Shopier istekleri dogrudan API'ye gider.
-- Iyilestirme: Redis konteyneri eklenerek Shopier stok verilerinin onbelleklenmesi ve admin girislerine katı IP tabanli Rate Limiting uygulanmasi.
+- Mevcut durum: Admin brute-force gecikmesi ve Hero ayarlari process belleginde tutulur.
+- Iyilestirme: Redis veya Valkey konteyneri eklenerek admin girislerine ve formlara kati IP tabanli Rate Limiting ve oturum onbellegi uygulanmasi.
 
 ### 9.5. Merkezi Izleme ve Bildirim (Logging & Alerting)
 - Mevcut durum: Loglar sunucu icinde tutulur.

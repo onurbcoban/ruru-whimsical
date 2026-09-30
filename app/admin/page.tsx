@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getPublishedPieces, getLatestJournalNote, getSocialEmbeds, getHeroSettings } from '@/lib/supabase/queries';
+import { getPublishedPieces, getLatestJournalNote, getSocialEmbeds, getHeroSettings } from '@/lib/queries';
 import { HeroSettingsForm } from '@/components/admin/HeroSettingsForm';
 
 export default async function AdminDashboardPage() {

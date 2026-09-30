@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getPieceById } from '@/lib/supabase/queries';
+import { getPieceById } from '@/lib/queries';
 import { PieceForm } from '@/components/admin/PieceForm';
 import { PortfolioForm } from '@/components/admin/PortfolioForm';
 

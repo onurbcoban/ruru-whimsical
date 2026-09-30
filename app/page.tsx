@@ -1,5 +1,5 @@
 import { getUnifiedShowcase } from '@/lib/portfolio';
-import { getSocialEmbeds, getHeroSettings } from '@/lib/supabase/queries';
+import { getSocialEmbeds, getHeroSettings } from '@/lib/queries';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ShopierShowcase } from '@/components/showcase/ShopierShowcase';

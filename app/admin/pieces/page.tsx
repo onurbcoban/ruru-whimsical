@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getPublishedPieces } from '@/lib/supabase/queries';
+import { getPublishedPieces } from '@/lib/queries';
 import { togglePieceArchiveAction, deletePieceAction } from '@/app/admin/actions';
 
 export default async function AdminPiecesListPage() {

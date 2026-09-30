@@ -2,10 +2,9 @@
 
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
-import { createServerClient } from '@/lib/supabase/server';
 import { getExpectedAdminToken, verifyAdminSession } from '@/lib/auth';
 import { fetchSocialMetadata } from '@/lib/social-oembed';
-import { setInMemoryHeroSettings } from '@/lib/supabase/queries';
+import { setInMemoryHeroSettings } from '@/lib/queries';
 import sql from '@/lib/db';
 
 function generateSlug(text: string): string {
@@ -21,15 +20,6 @@ function generateSlug(text: string): string {
     .trim()
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/[\s-]+/g, '-');
-}
-
-function isLiveSupabaseConfigured(): boolean {
-  if (process.env.DATABASE_URL) return false;
-  return !!(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('demo-project') &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
 }
 
 async function requireAdminAuth() {
@@ -67,12 +57,6 @@ export async function loginAdminAction(formData: FormData) {
 
 export async function logoutAdminAction() {
   const cookieStore = await cookies();
-  if (isLiveSupabaseConfigured()) {
-    try {
-      const supabase = await createServerClient();
-      await supabase.auth.signOut();
-    } catch {}
-  }
   cookieStore.delete('ruru_admin_session');
 }
 
@@ -96,14 +80,14 @@ export async function createPieceAction(formData: FormData) {
   let gallery_urls: string[] = [];
   try {
     if (gallery_urls_raw) gallery_urls = JSON.parse(gallery_urls_raw);
-  } catch (e) {
+  } catch {
     gallery_urls = [];
   }
 
   let craft_details = [];
   try {
     if (craft_details_raw) craft_details = JSON.parse(craft_details_raw);
-  } catch (e) {
+  } catch {
     craft_details = [];
   }
 
@@ -132,36 +116,6 @@ export async function createPieceAction(formData: FormData) {
       `;
     } catch (err) {
       console.error('Database piece insert exception (PostgreSQL):', err);
-    }
-  } else if (isLiveSupabaseConfigured()) {
-    try {
-      const supabase = await createServerClient();
-      const { error } = await supabase.from('pieces').insert([
-        {
-          title,
-          slug,
-          category,
-          story,
-          main_image_url,
-          gallery_urls,
-          craft_details,
-          size_info,
-          measurements,
-          showcase_section,
-          is_shopier_product: is_shopier,
-          shopier_sku,
-          shopier_url,
-          price,
-          is_archived: showcase_section === 'archive',
-          order_index: 1,
-        },
-      ]);
-
-      if (error) {
-        console.error('Supabase piece insert error:', error);
-      }
-    } catch (err) {
-      console.error('Database piece insert exception:', err);
     }
   }
 
@@ -192,14 +146,14 @@ export async function updatePieceAction(id: string, formData: FormData) {
   let gallery_urls: string[] = [];
   try {
     if (gallery_urls_raw) gallery_urls = JSON.parse(gallery_urls_raw);
-  } catch (e) {
+  } catch {
     gallery_urls = [];
   }
 
   let craft_details = [];
   try {
     if (craft_details_raw) craft_details = JSON.parse(craft_details_raw);
-  } catch (e) {
+  } catch {
     craft_details = [];
   }
 
@@ -227,36 +181,6 @@ export async function updatePieceAction(id: string, formData: FormData) {
     } catch (err) {
       console.error('Database piece update exception (PostgreSQL):', err);
     }
-  } else if (isLiveSupabaseConfigured()) {
-    try {
-      const supabase = await createServerClient();
-      const { error } = await supabase
-        .from('pieces')
-        .update({
-          title,
-          category,
-          story,
-          main_image_url,
-          gallery_urls,
-          craft_details,
-          size_info,
-          measurements,
-          showcase_section,
-          is_shopier_product: is_shopier,
-          shopier_sku,
-          shopier_url,
-          price,
-          is_archived,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', id);
-
-      if (error) {
-        console.error('Supabase piece update error:', error);
-      }
-    } catch (err) {
-      console.error('Database piece update exception:', err);
-    }
   }
 
   revalidatePath('/');
@@ -273,13 +197,6 @@ export async function deletePieceAction(id: string) {
       await sql`DELETE FROM public.pieces WHERE id = ${id}`;
     } catch (err) {
       console.error('Database piece delete exception (PostgreSQL):', err);
-    }
-  } else if (isLiveSupabaseConfigured()) {
-    try {
-      const supabase = await createServerClient();
-      await supabase.from('pieces').delete().eq('id', id);
-    } catch (err) {
-      console.error('Database piece delete exception:', err);
     }
   }
 
@@ -302,16 +219,6 @@ export async function togglePieceArchiveAction(id: string, currentStatus: boolea
     } catch (err) {
       console.error('Database piece toggle archive exception (PostgreSQL):', err);
     }
-  } else if (isLiveSupabaseConfigured()) {
-    try {
-      const supabase = await createServerClient();
-      await supabase
-        .from('pieces')
-        .update({ is_archived: !currentStatus })
-        .eq('id', id);
-    } catch (err) {
-      console.error('Database piece toggle archive exception:', err);
-    }
   }
 
   revalidatePath('/');
@@ -330,7 +237,7 @@ export async function saveJournalNoteAction(formData: FormData) {
   let photo_urls: string[] = [];
   try {
     if (photo_urls_raw) photo_urls = JSON.parse(photo_urls_raw);
-  } catch (e) {
+  } catch {
     photo_urls = [];
   }
 
@@ -345,22 +252,6 @@ export async function saveJournalNoteAction(formData: FormData) {
       `;
     } catch (err) {
       console.error('Database journal insert exception (PostgreSQL):', err);
-    }
-  } else if (isLiveSupabaseConfigured()) {
-    try {
-      const supabase = await createServerClient();
-      await supabase.from('journal_notes').insert([
-        {
-          title,
-          quote,
-          content,
-          photo_urls,
-          is_published: true,
-          published_at: new Date().toISOString(),
-        },
-      ]);
-    } catch (err) {
-      console.error('Database journal insert exception:', err);
     }
   }
 
@@ -381,7 +272,7 @@ export async function updateJournalNoteAction(id: string, formData: FormData) {
   let photo_urls: string[] = [];
   try {
     if (photo_urls_raw) photo_urls = JSON.parse(photo_urls_raw);
-  } catch (e) {
+  } catch {
     photo_urls = [];
   }
 
@@ -397,21 +288,6 @@ export async function updateJournalNoteAction(id: string, formData: FormData) {
       `;
     } catch (err) {
       console.error('Database journal update exception (PostgreSQL):', err);
-    }
-  } else if (isLiveSupabaseConfigured()) {
-    try {
-      const supabase = await createServerClient();
-      await supabase
-        .from('journal_notes')
-        .update({
-          title,
-          quote,
-          content,
-          photo_urls,
-        })
-        .eq('id', id);
-    } catch (err) {
-      console.error('Database journal update exception:', err);
     }
   }
 
@@ -429,13 +305,6 @@ export async function deleteJournalNoteAction(id: string) {
       await sql`DELETE FROM public.journal_notes WHERE id = ${id}`;
     } catch (err) {
       console.error('Database journal delete exception (PostgreSQL):', err);
-    }
-  } else if (isLiveSupabaseConfigured()) {
-    try {
-      const supabase = await createServerClient();
-      await supabase.from('journal_notes').delete().eq('id', id);
-    } catch (err) {
-      console.error('Database journal delete exception:', err);
     }
   }
 
@@ -469,21 +338,6 @@ export async function createSocialEmbedAction(formData: FormData) {
     } catch (err) {
       console.error('Database social insert exception (PostgreSQL):', err);
     }
-  } else if (isLiveSupabaseConfigured()) {
-    try {
-      const supabase = await createServerClient();
-      await supabase.from('social_embeds').insert([
-        {
-          platform,
-          url,
-          caption,
-          thumbnail_url,
-          order_index: 1,
-        },
-      ]);
-    } catch (err) {
-      console.error('Database social insert exception:', err);
-    }
   }
 
   revalidatePath('/');
@@ -499,13 +353,6 @@ export async function deleteSocialEmbedAction(id: string) {
       await sql`DELETE FROM public.social_embeds WHERE id = ${id}`;
     } catch (err) {
       console.error('Database social delete exception (PostgreSQL):', err);
-    }
-  } else if (isLiveSupabaseConfigured()) {
-    try {
-      const supabase = await createServerClient();
-      await supabase.from('social_embeds').delete().eq('id', id);
-    } catch (err) {
-      console.error('Database social delete exception:', err);
     }
   }
 
@@ -531,7 +378,6 @@ export async function updateHeroSettingsAction(formData: FormData) {
     handwritten_note,
   };
 
-  // Always update in-memory cache immediately
   setInMemoryHeroSettings(heroData);
 
   if (process.env.DATABASE_URL) {
@@ -545,21 +391,9 @@ export async function updateHeroSettingsAction(formData: FormData) {
     } catch (err) {
       console.error('Database hero update exception (PostgreSQL):', err);
     }
-  } else if (isLiveSupabaseConfigured()) {
-    try {
-      const supabase = await createServerClient();
-      await supabase.from('site_settings').upsert({
-        key: 'hero',
-        value: heroData,
-        updated_at: new Date().toISOString(),
-      });
-    } catch (err) {
-      console.error('Database hero update exception:', err);
-    }
   }
 
   revalidatePath('/');
   revalidatePath('/admin');
   return { success: true };
 }
-

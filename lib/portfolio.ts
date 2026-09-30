@@ -1,4 +1,4 @@
-import { getPieces, getAllJournalNotes, getLatestJournalNote, getSocialEmbeds } from './supabase/queries';
+import { getPieces, getAllJournalNotes, getLatestJournalNote, getSocialEmbeds } from './queries';
 import { getShopierProducts, type ShopierProduct } from './shopier';
 import type { Piece, JournalNote, SocialEmbed } from '@/types/database';
 

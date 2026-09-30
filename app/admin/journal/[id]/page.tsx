@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getJournalNoteById } from '@/lib/supabase/queries';
+import { getJournalNoteById } from '@/lib/queries';
 import { JournalForm } from '@/components/admin/JournalForm';
 
 interface AdminJournalEditPageProps {

@@ -1,4 +1,3 @@
-import { createServerClient } from './server';
 import type { Piece, JournalNote, SocialEmbed } from '@/types/database';
 import sql from '@/lib/db';
 
@@ -58,10 +57,15 @@ const MOCK_PIECES: Piece[] = [
     story: 'Elde büzgü detayları ve antika Fransız danteli aplikeleriyle tek adet olarak hazırlanan arşiv parçası.',
     main_image_url: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=800&auto=format&fit=crop&q=80',
     gallery_urls: [],
-    is_shopier_product: false,
-    shopier_sku: null,
-    shopier_url: null,
-    price: null,
+    craft_details: [
+      { label: 'Kumaş Dokusu', value: '%100 Ham Saf İpek' },
+      { label: 'Dantel Detayı', value: '1940\'lar Fransız El Danteli' },
+      { label: 'Kalıp', value: 'Vintage Robadan Geniş Kesim' },
+    ],
+    is_shopier_product: true,
+    shopier_sku: 'RURU-IPK-03',
+    shopier_url: 'https://shopier.com',
+    price: 5600,
     is_archived: false,
     order_index: 3,
     created_at: new Date().toISOString(),
@@ -69,16 +73,21 @@ const MOCK_PIECES: Piece[] = [
   },
   {
     id: 'mock-4',
-    title: 'Kır Çiçekleri El Nakışı Pano',
-    slug: 'kir-cicekleri-el-nakisi-pano',
-    category: 'serbest-calisma',
-    story: 'Eski keten kumaş artıkları üzerine ham ipek ipliklerle serbest teknikle işlenmiş duvar panosu. Dikişten arta kalan her parçanın bir hafızası var.',
+    title: 'Toprak Tonlu Keten Yelek',
+    slug: 'toprak-tonlu-keten-yelek',
+    category: 'keten',
+    story: 'Kat kat giyinmeyi sevenler için tasarlandı. Sırtındaki bağcık detayı ile bedene göre ayarlanabilir.',
     main_image_url: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&auto=format&fit=crop&q=80',
     gallery_urls: [],
-    is_shopier_product: false,
-    shopier_sku: null,
-    shopier_url: null,
-    price: null,
+    craft_details: [
+      { label: 'Kumaş Türü', value: 'Ağır Gramajlı Taşlanmış Keten' },
+      { label: 'Astar', value: 'Pamuklu İnce Poplin' },
+      { label: 'Bağcık', value: 'Kendi Kumaşından El Dikimi Biyeler' },
+    ],
+    is_shopier_product: true,
+    shopier_sku: 'RURU-KTY-04',
+    shopier_url: 'https://shopier.com',
+    price: 1950,
     is_archived: false,
     order_index: 4,
     created_at: new Date().toISOString(),
@@ -86,17 +95,22 @@ const MOCK_PIECES: Piece[] = [
   },
   {
     id: 'mock-5',
-    title: 'Vintage Gelinlik Dönüşüm Projesi (Arşiv)',
-    slug: 'vintage-gelinlik-donusum-projesi-arsiv',
-    category: 'arsiv',
-    story: '1970\'lerden kalma bir aile gelinliğinin kumaşları ve dantelleri korunarak modern ve zamansız bir mezuniyet elbisesine dönüştürülmesi çalışması.',
-    main_image_url: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=800&auto=format&fit=crop&q=80',
+    title: 'Gül Kurusu Kat Kat Etek',
+    slug: 'gul-kurusu-kat-kat-etek',
+    category: 'pamuk',
+    story: 'Adım attıkça hışırdayan, bol dökümlü ve derin cepli masalsı bir etek. Yaz akşamları ve serin sonbahar günleri için.',
+    main_image_url: 'https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=800&auto=format&fit=crop&q=80',
     gallery_urls: [],
-    is_shopier_product: false,
-    shopier_sku: null,
-    shopier_url: null,
-    price: null,
-    is_archived: true,
+    craft_details: [
+      { label: 'Kumaş', value: '%100 Organik Pamuk Müslin' },
+      { label: 'Bel Detayı', value: 'Geniş Lastikli Rahat Bel' },
+      { label: 'Etek Ucu', value: 'El Kıvırma İnce Dikiş' },
+    ],
+    is_shopier_product: true,
+    shopier_sku: 'RURU-PMK-05',
+    shopier_url: 'https://shopier.com',
+    price: 2400,
+    is_archived: false,
     order_index: 5,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -104,11 +118,19 @@ const MOCK_PIECES: Piece[] = [
 ];
 
 const MOCK_JOURNAL: JournalNote = {
-  id: 'mock-journal-1',
-  title: 'Keten Kumaşın Hafızası',
-  quote: 'Keten kumaş ütü sevmez; kırışıklıkları onun gün boyunca sizinle yaşadığının kanıtıdır.',
-  content: 'Atölyede yeni ruloları açtığımda ilk hissettiğim şey serinlik ve topraksı koku oluyor. Her makas darbesinde kumaşın nasıl döküleceğini dinlemek, dikişin en büyüleyici kısmı.',
-  photo_urls: ['https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&auto=format&fit=crop&q=80'],
+  id: 'mock-j-1',
+  title: 'Atölyede Yağmurlu Bir Salı ve Keten Kokusu',
+  quote: 'Dikiş makinesinin ritmik sesi, dışarıdaki yağmurla birleştiğinde zaman burada yavaşlıyor...',
+  content: `Sabah erken saatlerde atölyenin pencerelerine vuran yağmur damlalarıyla uyandım. Çayımı demleyip kesim masasının başına geçtiğimde, dün akşam açtığım yeni rulo ketenin kokusu tüm odayı sarmıştı.
+
+Doğal ketenle çalışmayı bu yüzden çok seviyorum; kumaş adeta yaşayan, nefes alan bir varlık gibi. Her lifi, her dokusu elde başka bir hikaye anlatıyor. Bugün üzerinde çalıştığım pelerin modeli için vintage pirinç agrafları seçerken, bu parçanın yıllar boyu birilerinin kış günlerine sıcaklık katacağını bilmek içimi ısıtıyor.
+
+Kalıp üzerinde yaptığım küçük bir pens değişikliği, elbisenin yürürken verdiği salınımı tamamen değiştirdi. Zanaat tam olarak bu küçük detaylarda gizli; aceleye gelmeyen, sabırla işlenen anlar.`,
+  photo_urls: [
+    'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&auto=format&fit=crop&q=80',
+  ],
+  is_published: true,
   published_at: new Date().toISOString(),
   created_at: new Date().toISOString(),
 };
@@ -116,7 +138,6 @@ const MOCK_JOURNAL: JournalNote = {
 function formatPieceRow(row: any): Piece {
   return {
     ...row,
-    price: row.price !== null && row.price !== undefined ? Number(row.price) : null,
     gallery_urls: Array.isArray(row.gallery_urls) ? row.gallery_urls : [],
     craft_details: typeof row.craft_details === 'string' ? JSON.parse(row.craft_details) : (row.craft_details || []),
     created_at: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at || ''),
@@ -151,23 +172,7 @@ export async function getPieces(): Promise<Piece[]> {
       `;
       return rows.map(formatPieceRow);
     }
-
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      return isProduction ? [] : MOCK_PIECES;
-    }
-
-    const supabase = await createServerClient();
-    const { data, error } = await supabase
-      .from('pieces')
-      .select('*')
-      .order('order_index', { ascending: true })
-      .order('created_at', { ascending: false });
-
-    if (error || !data) {
-      return isProduction ? [] : MOCK_PIECES;
-    }
-
-    return data as Piece[];
+    return isProduction ? [] : MOCK_PIECES;
   } catch {
     return isProduction ? [] : MOCK_PIECES;
   }
@@ -190,26 +195,9 @@ export async function getPieceBySlug(slug: string): Promise<Piece | null> {
       }
       return null;
     }
-
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      const found = MOCK_PIECES.find((p) => p.slug === slug);
-      return found || (isProduction ? null : MOCK_PIECES[0]);
-    }
-
-    const supabase = await createServerClient();
-    const { data, error } = await supabase
-      .from('pieces')
-      .select('*')
-      .eq('slug', slug)
-      .single();
-
-    if (error || !data) {
-      const found = MOCK_PIECES.find((p) => p.slug === slug);
-      return found || (isProduction ? null : MOCK_PIECES[0]);
-    }
-
-    return data as Piece;
-  } catch (err) {
+    const found = MOCK_PIECES.find((p) => p.slug === slug);
+    return found || (isProduction ? null : MOCK_PIECES[0]);
+  } catch {
     const found = MOCK_PIECES.find((p) => p.slug === slug);
     return found || (isProduction ? null : MOCK_PIECES[0]);
   }
@@ -230,26 +218,9 @@ export async function getPieceById(id: string): Promise<Piece | null> {
       }
       return null;
     }
-
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      const found = MOCK_PIECES.find((p) => p.id === id);
-      return found || (isProduction ? null : MOCK_PIECES[0]);
-    }
-
-    const supabase = await createServerClient();
-    const { data, error } = await supabase
-      .from('pieces')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error || !data) {
-      const found = MOCK_PIECES.find((p) => p.id === id);
-      return found || (isProduction ? null : MOCK_PIECES[0]);
-    }
-
-    return data as Piece;
-  } catch (err) {
+    const found = MOCK_PIECES.find((p) => p.id === id);
+    return found || (isProduction ? null : MOCK_PIECES[0]);
+  } catch {
     const found = MOCK_PIECES.find((p) => p.id === id);
     return found || (isProduction ? null : MOCK_PIECES[0]);
   }
@@ -268,27 +239,7 @@ export async function getLatestJournalNote(): Promise<JournalNote | null> {
       }
       return null;
     }
-
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      return MOCK_JOURNAL;
-    }
-
-    const supabase = await createServerClient();
-    const { data, error } = await supabase
-      .from('journal_notes')
-      .select('*')
-      .order('published_at', { ascending: false })
-      .limit(1);
-
-    if (error) {
-      return MOCK_JOURNAL;
-    }
-
-    if (!data || data.length === 0) {
-      return null;
-    }
-
-    return data[0] as JournalNote;
+    return MOCK_JOURNAL;
   } catch {
     return MOCK_JOURNAL;
   }
@@ -303,22 +254,7 @@ export async function getAllJournalNotes(): Promise<JournalNote[]> {
       `;
       return rows.map(formatJournalRow);
     }
-
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      return [MOCK_JOURNAL];
-    }
-
-    const supabase = await createServerClient();
-    const { data, error } = await supabase
-      .from('journal_notes')
-      .select('*')
-      .order('published_at', { ascending: false });
-
-    if (error) {
-      return [MOCK_JOURNAL];
-    }
-
-    return (data || []) as JournalNote[];
+    return [MOCK_JOURNAL];
   } catch {
     return [MOCK_JOURNAL];
   }
@@ -337,30 +273,13 @@ export async function getJournalNoteById(id: string): Promise<JournalNote | null
       }
       return null;
     }
-
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      return MOCK_JOURNAL.id === id ? MOCK_JOURNAL : null;
-    }
-
-    const supabase = await createServerClient();
-    const { data, error } = await supabase
-      .from('journal_notes')
-      .select('*')
-      .eq('id', id)
-      .limit(1);
-
-    if (error || !data || data.length === 0) {
-      return MOCK_JOURNAL.id === id ? MOCK_JOURNAL : null;
-    }
-
-    return data[0] as JournalNote;
+    return MOCK_JOURNAL.id === id ? MOCK_JOURNAL : null;
   } catch {
     return MOCK_JOURNAL.id === id ? MOCK_JOURNAL : null;
   }
 }
 
 const MOCK_SOCIAL_EMBEDS: SocialEmbed[] = [
-  // 4 Instagram Paylaşımı
   {
     id: 'mock-insta-1',
     platform: 'instagram-reels',
@@ -397,8 +316,6 @@ const MOCK_SOCIAL_EMBEDS: SocialEmbed[] = [
     order_index: 4,
     created_at: new Date().toISOString(),
   },
-
-  // 4 TikTok Videosu
   {
     id: 'mock-tiktok-1',
     platform: 'tiktok',
@@ -446,22 +363,7 @@ export async function getSocialEmbeds(): Promise<SocialEmbed[]> {
       `;
       return rows.map(formatSocialRow);
     }
-
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      return MOCK_SOCIAL_EMBEDS;
-    }
-
-    const supabase = await createServerClient();
-    const { data, error } = await supabase
-      .from('social_embeds')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      return MOCK_SOCIAL_EMBEDS;
-    }
-
-    return (data || []) as SocialEmbed[];
+    return MOCK_SOCIAL_EMBEDS;
   } catch {
     return MOCK_SOCIAL_EMBEDS;
   }
@@ -475,7 +377,6 @@ export const DEFAULT_HERO_SETTINGS = {
   handwritten_note: 'her dikişte bir hikaye saklı...',
 };
 
-// In-memory fallback cache for dev / offline / missing table environments
 let inMemoryHeroSettings = { ...DEFAULT_HERO_SETTINGS };
 
 export function setInMemoryHeroSettings(data: typeof DEFAULT_HERO_SETTINGS) {
@@ -502,26 +403,7 @@ export async function getHeroSettings() {
       }
       return inMemoryHeroSettings;
     }
-
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      return inMemoryHeroSettings;
-    }
-
-    const supabase = await createServerClient();
-    const { data, error } = await supabase
-      .from('site_settings')
-      .select('value')
-      .eq('key', 'hero')
-      .single();
-
-    if (error || !data || !data.value) {
-      return inMemoryHeroSettings;
-    }
-
-    return {
-      ...DEFAULT_HERO_SETTINGS,
-      ...data.value,
-    };
+    return inMemoryHeroSettings;
   } catch {
     return inMemoryHeroSettings;
   }

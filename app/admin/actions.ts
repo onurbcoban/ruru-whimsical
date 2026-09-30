@@ -2,7 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
-import { getExpectedAdminToken, verifyAdminSession } from '@/lib/auth';
+import {
+  createAdminToken,
+  verifyAdminSession,
+  getCurrentAdmin,
+} from '@/lib/auth';
+import { hashPassword, verifyPassword } from '@/lib/password';
 import { fetchSocialMetadata } from '@/lib/social-oembed';
 import { setInMemoryHeroSettings } from '@/lib/queries';
 import sql from '@/lib/db';
@@ -32,20 +37,46 @@ async function requireAdminAuth() {
 }
 
 export async function loginAdminAction(formData: FormData) {
+  const email = (formData.get('email') as string || '').toLowerCase().trim();
   const password = formData.get('password') as string;
-  const expectedPassword = process.env.ADMIN_PASSWORD || 'ruru2026';
   const cookieStore = await cookies();
 
-  if (!password || password !== expectedPassword) {
-    // Brute-force bot saldırılarını yavaşlatmak için gecikme
-    await new Promise((r) => setTimeout(r, 450));
-    throw new Error('Girdiğiniz atölye şifresi hatalı.');
+  if (!email || !password) {
+    throw new Error('Lütfen e-posta ve şifrenizi girin.');
   }
 
-  const token = await getExpectedAdminToken();
+  if (!process.env.DATABASE_URL) {
+    throw new Error('Veritabanı bağlantısı yapılandırılmamış.');
+  }
+
+  const rows = await sql`
+    SELECT id, email, name, password_hash, salt
+    FROM public.admin_users
+    WHERE LOWER(email) = ${email}
+    LIMIT 1
+  `;
+
+  if (rows.length === 0) {
+    await new Promise((r) => setTimeout(r, 450));
+    throw new Error('Girdiğiniz e-posta veya şifre hatalı.');
+  }
+
+  const user = rows[0];
+  const isMatch = await verifyPassword(password, user.password_hash, user.salt);
+
+  if (!isMatch) {
+    await new Promise((r) => setTimeout(r, 450));
+    throw new Error('Girdiğiniz e-posta veya şifre hatalı.');
+  }
+
+  const token = await createAdminToken({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+  });
 
   cookieStore.set('ruru_admin_session', token, {
-    maxAge: 60 * 60 * 24 * 365,
+    maxAge: 60 * 60 * 24 * 7, // 7 gun
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -397,3 +428,116 @@ export async function updateHeroSettingsAction(formData: FormData) {
   revalidatePath('/admin');
   return { success: true };
 }
+
+export async function changePasswordAction(formData: FormData) {
+  await requireAdminAuth();
+  const currentAdmin = await getCurrentAdmin();
+  if (!currentAdmin) {
+    throw new Error('Yetkisiz işlem.');
+  }
+
+  const currentPassword = formData.get('current_password') as string;
+  const newPassword = formData.get('new_password') as string;
+  const newPasswordConfirm = formData.get('new_password_confirm') as string;
+
+  if (!currentPassword || !newPassword || !newPasswordConfirm) {
+    throw new Error('Lütfen tüm şifre alanlarını doldurun.');
+  }
+
+  if (newPassword.length < 6) {
+    throw new Error('Yeni şifre en az 6 karakter olmalıdır.');
+  }
+
+  if (newPassword !== newPasswordConfirm) {
+    throw new Error('Yeni şifreler birbiriyle uyuşmuyor.');
+  }
+
+  if (process.env.DATABASE_URL) {
+    const rows = await sql`
+      SELECT id, password_hash, salt
+      FROM public.admin_users
+      WHERE id = ${currentAdmin.sub}
+      LIMIT 1
+    `;
+
+    if (rows.length === 0) {
+      throw new Error('Kullanıcı bulunamadı.');
+    }
+
+    const isMatch = await verifyPassword(currentPassword, rows[0].password_hash, rows[0].salt);
+    if (!isMatch) {
+      throw new Error('Mevcut şifrenizi hatalı girdiniz.');
+    }
+
+    const { hash, salt } = await hashPassword(newPassword);
+    await sql`
+      UPDATE public.admin_users
+      SET password_hash = ${hash}, salt = ${salt}, updated_at = NOW()
+      WHERE id = ${currentAdmin.sub}
+    `;
+  }
+
+  return { success: true };
+}
+
+export async function createAdminUserAction(formData: FormData) {
+  await requireAdminAuth();
+
+  const name = (formData.get('name') as string || '').trim();
+  const email = (formData.get('email') as string || '').toLowerCase().trim();
+  const password = formData.get('password') as string;
+
+  if (!name || !email || !password) {
+    throw new Error('Lütfen ad, e-posta ve şifre alanlarını eksiksiz doldurun.');
+  }
+
+  if (!email.includes('@')) {
+    throw new Error('Lütfen geçerli bir e-posta adresi girin.');
+  }
+
+  if (password.length < 6) {
+    throw new Error('Şifre en az 6 karakter olmalıdır.');
+  }
+
+  if (process.env.DATABASE_URL) {
+    const existing = await sql`
+      SELECT id FROM public.admin_users
+      WHERE LOWER(email) = ${email}
+      LIMIT 1
+    `;
+    if (existing.length > 0) {
+      throw new Error('Bu e-posta adresiyle kayıtlı bir yönetici zaten mevcut.');
+    }
+
+    const { hash, salt } = await hashPassword(password);
+    await sql`
+      INSERT INTO public.admin_users (name, email, password_hash, salt)
+      VALUES (${name}, ${email}, ${hash}, ${salt})
+    `;
+  }
+
+  revalidatePath('/admin/users');
+  return { success: true };
+}
+
+export async function deleteAdminUserAction(targetUserId: string) {
+  await requireAdminAuth();
+  const currentAdmin = await getCurrentAdmin();
+
+  if (currentAdmin?.sub === targetUserId) {
+    throw new Error('Kendi yönetici hesabınızı silemezsiniz.');
+  }
+
+  if (process.env.DATABASE_URL) {
+    const allAdmins = await sql`SELECT id FROM public.admin_users`;
+    if (allAdmins.length <= 1) {
+      throw new Error('Sistemde en az 1 yönetici hesabı kalmalıdır.');
+    }
+
+    await sql`DELETE FROM public.admin_users WHERE id = ${targetUserId}`;
+  }
+
+  revalidatePath('/admin/users');
+  return { success: true };
+}
+

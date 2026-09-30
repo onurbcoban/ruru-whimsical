@@ -167,3 +167,23 @@ INSERT INTO public.social_embeds (
     '2026-08-19T02:31:01.930981+00:00'
 ) ON CONFLICT (id) DO NOTHING;
 
+CREATE TABLE IF NOT EXISTS public.admin_users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    salt TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+INSERT INTO public.admin_users (
+    email, name, password_hash, salt
+) VALUES (
+    'admin@ruruwhimsical.com',
+    'Rümeysa',
+    '67b076175125ad3f07f583ea2e94e479f9a0743a9d1eff129b8e131a934b24372f045a1ac9cc0f63521f5705d67f2c9c76cfb0754d304c6ce62048f37b507153',
+    '21dc78556d0ed7e9aaf73fa83fccba69'
+) ON CONFLICT (email) DO NOTHING;
+
+

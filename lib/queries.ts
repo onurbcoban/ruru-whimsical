@@ -408,3 +408,32 @@ export async function getHeroSettings() {
     return inMemoryHeroSettings;
   }
 }
+
+export async function getAdminUsers(): Promise<{ id: string; email: string; name: string; created_at: string }[]> {
+  try {
+    if (process.env.DATABASE_URL) {
+      const rows = await sql`
+        SELECT id, email, name, created_at
+        FROM public.admin_users
+        ORDER BY created_at ASC
+      `;
+      return rows.map((r: any) => ({
+        id: String(r.id),
+        email: String(r.email),
+        name: String(r.name),
+        created_at: r.created_at instanceof Date ? r.created_at.toISOString() : String(r.created_at || ''),
+      }));
+    }
+    return [
+      {
+        id: 'mock-admin-1',
+        email: 'admin@ruruwhimsical.com',
+        name: 'Rümeysa',
+        created_at: new Date().toISOString(),
+      },
+    ];
+  } catch {
+    return [];
+  }
+}
+

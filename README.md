@@ -54,8 +54,8 @@ Proje kok dizininde `.env.local` dosyasi olusturarak asagidaki sablonu kullanabi
 # PostgreSQL Baglanti Dizesi
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ruru_db
 
-# Yonetici Masasi Guvenlik Sifresi
-ADMIN_PASSWORD=guclu_bir_sifre_belirleyin
+# JWT Oturum Imzalama Anahtari
+JWT_SECRET=guclu_ve_rastgele_bir_anahtar_belirleyin
 
 # Cloudflare R2 (S3 Uyumlu Nesne Depolama)
 R2_ACCOUNT_ID=your_account_id

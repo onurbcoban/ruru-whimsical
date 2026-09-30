@@ -112,6 +112,17 @@ export default function AdminLayout({
             >
               Sosyal Medya
             </Link>
+            <Link
+              href="/admin/users"
+              style={{
+                fontSize: '13.5px',
+                fontWeight: 500,
+                color: 'var(--text-soft)',
+                textDecoration: 'none',
+              }}
+            >
+              Yöneticiler
+            </Link>
           </nav>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

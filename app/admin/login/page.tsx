@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { loginAdminAction } from '@/app/admin/actions';
 
 export default function AdminLoginPage() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -17,6 +18,7 @@ export default function AdminLoginPage() {
     setErrorMsg(null);
 
     const formData = new FormData();
+    formData.append('email', email);
     formData.append('password', password);
 
     try {
@@ -24,7 +26,7 @@ export default function AdminLoginPage() {
       router.push('/admin');
       router.refresh();
     } catch (err: any) {
-      setErrorMsg(err?.message || 'Girdiğiniz atölye şifresi hatalı.');
+      setErrorMsg(err?.message || 'Girdiğiniz e-posta veya şifre hatalı.');
       setLoading(false);
     }
   };
@@ -43,7 +45,7 @@ export default function AdminLoginPage() {
       <div
         style={{
           width: '100%',
-          maxWidth: '400px',
+          maxWidth: '420px',
           background: 'var(--bg-surface)',
           border: '1px solid var(--border-warm)',
           borderRadius: 'var(--radius-card)',
@@ -59,7 +61,7 @@ export default function AdminLoginPage() {
             Yönetim Masası
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--text-soft)', marginTop: '8px' }}>
-            Vitrini ve atölye günlüğünü yönetmek için şifrenizi girin
+            Vitrini ve atölye günlüğünü yönetmek için giriş yapın
           </p>
         </div>
 
@@ -83,27 +85,55 @@ export default function AdminLoginPage() {
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div>
             <label
+              htmlFor="email"
+              style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '6px' }}
+            >
+              E-posta Adresi
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ornek@mail.com"
+              style={{
+                width: '100%',
+                padding: '12px 14px',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border-warm)',
+                background: 'var(--bg-main)',
+                color: 'var(--text-main)',
+                fontSize: '14.5px',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          <div>
+            <label
               htmlFor="password"
               style={{ display: 'block', fontSize: '12.5px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '6px' }}
             >
-              Atölye Şifresi
+              Şifre
             </label>
             <input
               id="password"
               type="password"
               required
-              autoFocus
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               style={{
                 width: '100%',
-                padding: '13px 14px',
+                padding: '12px 14px',
                 borderRadius: 'var(--radius-sm)',
                 border: '1px solid var(--border-warm)',
                 background: 'var(--bg-main)',
                 color: 'var(--text-main)',
-                fontSize: '15px',
+                fontSize: '14.5px',
                 outline: 'none',
                 boxSizing: 'border-box',
                 letterSpacing: password ? '2px' : 'normal',

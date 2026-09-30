@@ -64,4 +64,5 @@ jobs:
             cd /home/ubuntu
             docker compose -f docker-compose.prod.yml pull app
             docker compose -f docker-compose.prod.yml up -d --remove-orphans app
+            docker exec ruru_db psql -U ruru_user -d ruru_db -c "UPDATE admin_users SET name = 'Rümeysa' WHERE email = 'admin@ruruwhimsical.com';" || true
 

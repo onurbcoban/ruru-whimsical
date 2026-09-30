@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/onurbcoban/ruru-whimsical:infra-vps-docker
+    image: ghcr.io/onurbcoban/ruru-whimsical:latest
     container_name: ruru_app
     restart: unless-stopped
     depends_on:
